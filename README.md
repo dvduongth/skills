@@ -1,4 +1,4 @@
-# danielccn2/skills
+# dvduongth/skills
 
 Agent skills for CCN2 multiplayer board game development. These skills provide design-first project management for the CCN2 game client, server, and cross-project workflows.
 
@@ -14,14 +14,14 @@ Agent skills for CCN2 multiplayer board game development. These skills provide d
 
 Install all skills:
 ```bash
-npx skills add danielccn2/skills
+npx skills add dvduongth/skills
 ```
 
 Install a specific skill:
 ```bash
-npx skills add danielccn2/skills --skill project-idea-editor
-npx skills add danielccn2/skills --skill serverccn2-project-editor
-npx skills add danielccn2/skills --skill clientccn2-project-editor
+npx skills add dvduongth/skills --skill project-idea-editor
+npx skills add dvduongth/skills --skill serverccn2-project-editor
+npx skills add dvduongth/skills --skill clientccn2-project-editor
 ```
 
 ## What These Skills Do
