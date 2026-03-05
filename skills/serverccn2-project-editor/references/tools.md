@@ -58,6 +58,14 @@
 | **Edit** | Modify existing JSON resources |
 | **Grep** | Find references to resources in GameCfg and code |
 
+### validate_result
+| Tool | Purpose |
+|------|---------|
+| **Bash** | Run `./gradlew compileKotlin`, `./gradlew test`, count files, config checks |
+| **Grep** | Verify registrations in CCN2ModuleInitializer, GameCfg, CmdDefine |
+| **Glob** | Verify file paths cited in output actually exist |
+| **Read** | Spot-check: read random files to verify content matches output claims |
+
 ---
 
 ## Key File Paths Quick Reference

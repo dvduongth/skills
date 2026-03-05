@@ -64,21 +64,30 @@ Each follows the pattern:
 
 **Output:** Implementation files with test coverage.
 
-### Phase 4: Verify
+### Phase 4: Verify & Validate
 
 ```
-check_client_consistency
-npm test
-npm run lint
+validate_result               # Auto-runs after every command
+check_client_consistency      # GDD ↔ Code ↔ Config matrix
+npm test                      # Test suite
+npm run lint                  # Lint check
 ```
 
 Claude will:
+- **Auto-validate** the preceding command's output (see `references/validation.md`)
+- Run automated checks: lint, JSB compat, test suite
+- Run spot-checks: 3 random items from output verified against actual codebase
 - Build GDD ↔ Code ↔ Config consistency matrix
-- Run tests
-- Run lint
 - Verify cross-project sync (MSerializer.js, ItemGroup.json)
+- Generate **Validation Report** with severity-classified results
 
-**Output:** Consistency report, test results.
+**Decision rules:**
+- All PASS → proceed, save to memory
+- WARNING only → proceed with caveats noted to user
+- Any CRITICAL → stop, fix, re-validate before proceeding
+- Multiple CRITICAL → re-run entire command from scratch
+
+**Output:** Validation report + consistency report + test results.
 
 ### Phase 5: Migrate (ongoing)
 
@@ -98,33 +107,37 @@ Legacy → new architecture migration:
 
 ### New Game Effect (e.g., new card action)
 ```
-edit_client_idea → manage_actions → generate_client_code → check_client_consistency
+edit_client_idea → manage_actions → generate_client_code → validate_result → check_client_consistency
 ```
 
 ### New Module (e.g., achievement system)
 ```
-edit_client_idea → manage_modules (create) → manage_events (add keys) → generate_client_code → npm test
+edit_client_idea → manage_modules (create) → manage_events (add keys) → generate_client_code → validate_result
 ```
 
 ### New UI Component
 ```
-manage_ui → generate_client_code → npm run lint:global → npm test
+manage_ui → generate_client_code → validate_result → npm run lint:global
 ```
 
 ### Event System Audit
 ```
-scan_client → manage_events (audit) → refactor_client (if migration needed)
+scan_client → validate_result → manage_events (audit) → validate_result → refactor_client (if needed)
 ```
 
 ### Legacy Migration
 ```
-scan_client → refactor_client → npm test → npm run lint
+scan_client → validate_result → refactor_client → validate_result
 ```
 
 ### Config Sync with Server
 ```
-manage_configs (audit) → check_client_consistency
+manage_configs (audit) → validate_result → check_client_consistency → validate_result
 ```
+
+> **Note:** `validate_result` runs automatically after each command.
+> In pipelines above it's shown explicitly for clarity, but in practice
+> it triggers without user intervention.
 
 ---
 

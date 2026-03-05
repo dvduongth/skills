@@ -236,6 +236,48 @@ Post-refactor:
 - Update clientccn2/CLAUDE.md if architecture docs changed
 ```
 
+### validate_result
+
+```
+You are validating the output of the preceding skill command.
+Your goal: ensure correctness BEFORE the result is trusted, saved to memory, or acted upon.
+
+Validation protocol:
+1. Identify the command that just completed and its output type
+2. Load validation checks from references/validation.md for that command
+3. Run AUTOMATED checks:
+   - Lint: npm run lint (for code generation/refactoring)
+   - JSB: grep for template literals, const-in-loop, ES6 imports
+   - Tests: npm test (for code generation/refactoring)
+   - Counts: compare reported numbers vs actual codebase counts (for scans)
+   - Paths: verify cited file paths exist (for docs/analysis)
+4. Run SPOT-CHECKS (pick 3 random items from output):
+   - For scans: verify module/action/event exists at stated path
+   - For docs: verify code examples match actual source
+   - For code: verify pattern matches similar existing files
+5. Classify each check result:
+   - PASS: check succeeded
+   - FAIL/CRITICAL: result is wrong, must fix
+   - FAIL/WARNING: result may be incomplete, flag to user
+   - FAIL/INFO: minor, log for awareness
+6. Generate Validation Report:
+   | # | Check | Result | Severity |
+   |---|-------|--------|----------|
+   | 1 | ... | PASS/FAIL | ... |
+7. Decision:
+   - All PASS → "Validation PASSED. Proceeding."
+   - WARNING only → "Validation PASSED with warnings: {list}"
+   - Any CRITICAL → "Validation FAILED. Fixing: {list}"
+   - Multiple CRITICAL → "Validation FAILED. Re-running command."
+
+IMPORTANT:
+- Never skip validation even if the command "looks correct"
+- For scan_client: always verify at least module count, action count, event count
+- For code generation: always run lint + JSB check + test
+- For refactoring: always compare test results before/after
+- Report format must include the validation table
+```
+
 ---
 
 ## Response Style Guidelines

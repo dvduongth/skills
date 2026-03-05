@@ -14,6 +14,7 @@ description: >
   "ServiceContainer", "AppContext", "NavigationCoordinator", "gv.bus", "gv.signalMgr",
   or any request involving clientccn2/ project management.
   This skill enforces a design-first workflow: documentation is always updated before code is written.
+  Every command output is auto-validated via `validate_result` to ensure correctness before trusting results.
 ---
 
 # ClientCCN2 Project Editor
@@ -544,6 +545,51 @@ Steps:
 4. Handle asset tier transparency (`low/`, `high/`, `ultra/`)
 5. Test with cc-mock in Jest
 
+### 12. `validate_result`
+
+**Purpose:** Validate the output of any preceding skill command to ensure correctness before trusting results.
+
+**Trigger:** Runs automatically after every other command. Can also be invoked manually.
+
+Steps:
+1. Identify which command just completed and its output type:
+   - **Scan/Analysis** → verify counts, file paths, categories
+   - **Documentation** → verify sections, code examples, GDD alignment
+   - **Code Generation** → verify lint, JSB, tests, registration, patterns
+   - **Refactoring** → verify tests before/after, lint, migration progress
+2. Run **automated checks** (see `references/validation.md` for command-specific checks):
+   ```bash
+   # Core automated suite (always run)
+   npm run lint 2>&1 | tail -5                    # Lint
+   npm test 2>&1 | tail -10                       # Tests
+   grep -rE '`[^`]*\$\{' <generated_files>       # JSB: no template literals
+   grep -rE 'for\s*\(\s*const\s' <generated_files> # JSB: no const-in-loop
+   grep -rE '^\s*import\s' <generated_files>      # JSB: no ES6 imports
+   ```
+3. Run **spot-checks** (pick 3 random items from output):
+   - Verify file paths exist
+   - Verify counts match actual codebase
+   - Verify code examples follow project patterns
+4. Classify failures by severity:
+   - **CRITICAL** → fix immediately, re-run command
+   - **WARNING** → flag to user, proceed with caveats
+   - **INFO** → log for awareness
+5. Generate **Validation Report**:
+   ```
+   ## Validation Report — {command_name}
+   | # | Check | Result | Severity |
+   |---|-------|--------|----------|
+   | 1 | Lint passes | PASS | — |
+   | 2 | JSB compat  | PASS | — |
+   | ...
+   **Overall: PASS / FAIL**
+   ```
+6. Decision:
+   - All PASS → proceed, save to memory
+   - WARNING only → proceed with caveats noted
+   - Any CRITICAL → stop, fix, re-validate
+   - Multiple CRITICAL → re-run entire command from scratch
+
 ---
 
 ## Workflow Rules
@@ -581,6 +627,13 @@ These rules apply to ALL commands:
 
 9. **Save to memory.** After completing a command, save key findings to memory files.
 
+10. **Validate every output.** After every command, run `validate_result` automatically:
+    - Automated checks: lint, JSB compat, tests, counts, file paths
+    - Spot-checks: 3 random items verified against actual codebase
+    - Severity classification: CRITICAL (fix now), WARNING (flag), INFO (log)
+    - CRITICAL failures block proceeding until fixed
+    - See `references/validation.md` for command-specific validation checks
+
 ---
 
 ## Response Format
@@ -612,3 +665,5 @@ These rules apply to ALL commands:
 | "Add new scene" | `manage_ui` → `manage_modules` |
 | "What actions exist?" | `manage_actions` (inventory) |
 | "Refactor event system" | `refactor_client` |
+| "Validate last output" | `validate_result` |
+| "Check if scan is correct" | `validate_result` |

@@ -166,6 +166,50 @@ Pre-deployment review checklist for {environment}:
    - [ ] Basic game flow works (matchmaking → game → finish)
 ```
 
+### validate_result
+
+```
+You are validating the output of the preceding skill command.
+Your goal: ensure correctness BEFORE the result is trusted, saved to memory, or acted upon.
+
+Validation protocol:
+1. Identify the command that just completed and its output type
+2. Load validation checks from references/validation.md for that command
+3. Run AUTOMATED checks:
+   - Build: ./gradlew compileKotlin (for code generation/refactoring)
+   - Tests: ./gradlew test (for code generation/refactoring)
+   - Config: validate dao_type, db_prefix_key uniqueness (for config management)
+   - Counts: compare reported numbers vs actual codebase counts (for scans)
+   - Paths: verify cited file paths exist (for docs/analysis)
+4. Run SPOT-CHECKS (pick 3 random items from output):
+   - For scans: verify module/config/resource exists at stated path
+   - For docs: verify code examples match actual source
+   - For code: verify pattern matches similar existing files
+   - For configs: verify property values match actual files
+5. Classify each check result:
+   - PASS: check succeeded
+   - FAIL/CRITICAL: result is wrong, must fix
+   - FAIL/WARNING: result may be incomplete, flag to user
+   - FAIL/INFO: minor, log for awareness
+6. Generate Validation Report:
+   | # | Check | Result | Severity |
+   |---|-------|--------|----------|
+   | 1 | ... | PASS/FAIL | ... |
+7. Decision:
+   - All PASS → "Validation PASSED. Proceeding."
+   - WARNING only → "Validation PASSED with warnings: {list}"
+   - Any CRITICAL → "Validation FAILED. Fixing: {list}"
+   - Multiple CRITICAL → "Validation FAILED. Re-running command."
+
+IMPORTANT:
+- Never skip validation even if the command "looks correct"
+- For scan_server: always verify module count, resource count, environment count
+- For code generation: always run build + test
+- For config management: always check dao_type + db_prefix_key uniqueness
+- For refactoring: always compare build/test results before/after
+- Report format must include the validation table
+```
+
 ---
 
 ## Response Style Guidelines

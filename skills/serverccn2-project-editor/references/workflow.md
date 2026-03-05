@@ -78,20 +78,31 @@ Claude will:
 
 **Output:** Implementation files with test coverage.
 
-### Phase 5: Verify
+### Phase 5: Verify & Validate
 
 ```
-check_server_consistency
-review_deploy
+validate_result               # Auto-runs after every command
+check_server_consistency      # GDD ↔ Code ↔ Config matrix
+review_deploy                 # Deploy readiness checklist
 ```
 
 Claude will:
+- **Auto-validate** the preceding command's output (see `references/validation.md`)
+- Run automated checks: build, tests, config validation, counts
+- Run spot-checks: 3 random items from output verified against actual codebase
 - Build GDD ↔ Code ↔ Config consistency matrix
 - Run config audit for target environment
 - Generate deploy checklist
 - Verify cross-project sync (MSerializer.js, ItemGroup.json)
+- Generate **Validation Report** with severity-classified results
 
-**Output:** Consistency report, deploy checklist.
+**Decision rules:**
+- All PASS → proceed, save to memory
+- WARNING only → proceed with caveats noted to user
+- Any CRITICAL → stop, fix, re-validate before proceeding
+- Multiple CRITICAL → re-run entire command from scratch
+
+**Output:** Validation report + consistency report + deploy checklist.
 
 ---
 
@@ -99,28 +110,32 @@ Claude will:
 
 ### New Feature
 ```
-edit_server_idea → update_gdd → generate_server_tech_doc → generate_server_code → check_server_consistency
+edit_server_idea → update_gdd → generate_server_tech_doc → generate_server_code → validate_result → check_server_consistency
 ```
 
 ### New Environment
 ```
-scan_server → manage_config (create) → manage_config (audit) → review_deploy
+scan_server → validate_result → manage_config (create) → validate_result → manage_config (audit) → review_deploy
 ```
 
 ### Config Change
 ```
-manage_config (edit) → manage_config (audit)
+manage_config (edit) → validate_result → manage_config (audit) → validate_result
 ```
 
 ### Pre-Deploy
 ```
-scan_server → check_server_consistency → manage_config (audit) → review_deploy
+scan_server → validate_result → check_server_consistency → validate_result → manage_config (audit) → review_deploy
 ```
 
 ### Refactoring
 ```
-scan_server → refactor_server → check_server_consistency
+scan_server → validate_result → refactor_server → validate_result → check_server_consistency
 ```
+
+> **Note:** `validate_result` runs automatically after each command.
+> In pipelines above it's shown explicitly for clarity, but in practice
+> it triggers without user intervention.
 
 ---
 

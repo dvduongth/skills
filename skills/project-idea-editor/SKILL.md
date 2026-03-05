@@ -9,6 +9,7 @@ description: >
   "check design consistency", "generate code from design", "refactor codebase", architecture review,
   design-first workflow, or any request that involves changing game mechanics, rules, or project structure.
   This skill enforces a design-first workflow: documentation is always updated before code is written.
+  Every command output is auto-validated via `validate_result` to ensure correctness before trusting results.
 ---
 
 # Project Idea Editor
@@ -242,6 +243,55 @@ Steps:
 7. Run `check_design_consistency` after refactoring
 8. Update tests
 
+### 8. `validate_result`
+
+**Purpose:** Validate the output of any preceding skill command to ensure correctness before trusting results.
+
+**Trigger:** Runs automatically after every other command. Can also be invoked manually.
+
+Steps:
+1. Identify which command just completed and its output type:
+   - **Scan/Analysis** → verify counts, file paths, architecture claims
+   - **Documentation** → verify sections, code examples, accuracy
+   - **Idea Editing** → verify impact areas, cross-project coverage
+   - **GDD Update** → verify formatting, section structure, no contradictions
+   - **Consistency Check** → verify matrix values against actual sources
+   - **Code Generation** → verify lint/build, JSB, tests, registration (both client + server)
+   - **Refactoring** → verify build/tests before/after, consistency
+2. Run **automated checks** (see `references/validation.md` for command-specific checks):
+   ```bash
+   # Client checks
+   cd clientccn2 && npm run lint 2>&1 | tail -5
+   cd clientccn2 && npm test 2>&1 | tail -10
+   grep -rE '`[^`]*\$\{' clientccn2/src/ --include="*.js"   # JSB
+   # Server checks
+   cd serverccn2 && ./gradlew compileKotlin 2>&1 | tail -5
+   cd serverccn2 && ./gradlew test 2>&1 | tail -10
+   ```
+3. Run **spot-checks** (pick 3 random items from output):
+   - Verify file paths exist on both client and server
+   - Verify counts match actual codebase
+   - Verify design pattern claims match actual code
+4. Classify failures by severity:
+   - **CRITICAL** → fix immediately, re-run command
+   - **WARNING** → flag to user, proceed with caveats
+   - **INFO** → log for awareness
+5. Generate **Validation Report**:
+   ```
+   ## Validation Report — {command_name}
+   | # | Check | Result | Severity |
+   |---|-------|--------|----------|
+   | 1 | Client lint | PASS | — |
+   | 2 | Server build | PASS | — |
+   | ...
+   **Overall: PASS / FAIL**
+   ```
+6. Decision:
+   - All PASS → proceed, save to memory
+   - WARNING only → proceed with caveats noted
+   - Any CRITICAL → stop, fix, re-validate
+   - Multiple CRITICAL → re-run entire command from scratch
+
 ---
 
 ## Workflow Rules
@@ -268,7 +318,14 @@ These rules apply to ALL commands:
    - Check if ItemGroup.json needs update
    - Verify both client and server handle the same packet format
 
-7. **Save to memory.** After completing a command, save key findings and decisions to memory files at `~/.claude/projects/D--workspace-CCN2/memory/` for future sessions.
+7. **Save to memory.** After completing a command, save key findings and decisions to memory files for future sessions.
+
+8. **Validate every output.** After every command, run `validate_result` automatically:
+    - Automated checks: lint/build, JSB compat, tests, counts, file paths (both client + server)
+    - Spot-checks: 3 random items verified against actual codebase
+    - Severity classification: CRITICAL (fix now), WARNING (flag), INFO (log)
+    - CRITICAL failures block proceeding until fixed
+    - See `references/validation.md` for command-specific validation checks
 
 ---
 
@@ -293,3 +350,5 @@ These rules apply to ALL commands:
 | "Add feature X" (already designed) | `generate_code_from_design` |
 | "Refactor the event system" | `refactor_codebase` |
 | "Change the win condition to 500 KC" | `edit_idea` → `update_gdd` → `check_design_consistency` |
+| "Validate last output" | `validate_result` |
+| "Check if scan is correct" | `validate_result` |

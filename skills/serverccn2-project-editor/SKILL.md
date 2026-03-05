@@ -10,6 +10,7 @@ description: >
   "server architecture", "server tech doc", "server scan", "config review", "environment setup",
   "dao_type", "db_prefix_key", "configByMode", or any request involving serverccn2/ project management.
   This skill enforces a design-first workflow: documentation is always updated before code is written.
+  Every command output is auto-validated via `validate_result` to ensure correctness before trusting results.
 ---
 
 # ServerCCN2 Project Editor
@@ -462,6 +463,54 @@ Steps:
 7. Run `check_server_consistency` after refactoring
 8. Update tests
 
+### 10. `validate_result`
+
+**Purpose:** Validate the output of any preceding skill command to ensure correctness before trusting results.
+
+**Trigger:** Runs automatically after every other command. Can also be invoked manually.
+
+Steps:
+1. Identify which command just completed and its output type:
+   - **Scan/Analysis** → verify counts, file paths, categories
+   - **Documentation** → verify sections, code examples, GDD alignment
+   - **Config Management** → verify property values, uniqueness, env consistency
+   - **Code Generation** → verify build, tests, registration, patterns
+   - **Deploy Review** → verify checklist completeness
+   - **Refactoring** → verify build/tests before/after
+2. Run **automated checks** (see `references/validation.md` for command-specific checks):
+   ```bash
+   # Core automated suite
+   cd serverccn2 && ./gradlew compileKotlin 2>&1 | tail -5   # Build
+   cd serverccn2 && ./gradlew test 2>&1 | tail -10            # Tests
+   # Config checks
+   for dir in serverccn2/configByMode/*/config/; do
+     grep "db_prefix_key\|dao_type" "$dir/server.properties"
+   done
+   ```
+3. Run **spot-checks** (pick 3 random items from output):
+   - Verify file paths exist
+   - Verify counts match actual codebase
+   - Verify config values match actual properties files
+4. Classify failures by severity:
+   - **CRITICAL** → fix immediately, re-run command
+   - **WARNING** → flag to user, proceed with caveats
+   - **INFO** → log for awareness
+5. Generate **Validation Report**:
+   ```
+   ## Validation Report — {command_name}
+   | # | Check | Result | Severity |
+   |---|-------|--------|----------|
+   | 1 | Build compiles | PASS | — |
+   | 2 | Tests pass    | PASS | — |
+   | ...
+   **Overall: PASS / FAIL**
+   ```
+6. Decision:
+   - All PASS → proceed, save to memory
+   - WARNING only → proceed with caveats noted
+   - Any CRITICAL → stop, fix, re-validate
+   - Multiple CRITICAL → re-run entire command from scratch
+
 ---
 
 ## Workflow Rules
@@ -501,6 +550,13 @@ These rules apply to ALL commands:
 
 9. **Save to memory.** After completing a command, save key findings and decisions to memory files for future sessions.
 
+10. **Validate every output.** After every command, run `validate_result` automatically:
+    - Automated checks: build, tests, config validation, counts, file paths
+    - Spot-checks: 3 random items verified against actual codebase
+    - Severity classification: CRITICAL (fix now), WARNING (flag), INFO (log)
+    - CRITICAL failures block proceeding until fixed
+    - See `references/validation.md` for command-specific validation checks
+
 ---
 
 ## Response Format
@@ -531,3 +587,5 @@ These rules apply to ALL commands:
 | "Is the server code matching GDD?" | `check_server_consistency` |
 | "Change win condition to 500 KC" | `edit_server_idea` → `check_server_consistency` |
 | "Compare all env configs" | `manage_config` (4c) |
+| "Validate last output" | `validate_result` |
+| "Check if scan is correct" | `validate_result` |

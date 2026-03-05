@@ -78,6 +78,14 @@
 | **Write** | Create new UI files |
 | **Edit** | Add to GameHUD, SceneFactory |
 
+### validate_result
+| Tool | Purpose |
+|------|---------|
+| **Bash** | Run `npm run lint`, `npm test`, JSB grep scans, count files |
+| **Grep** | Verify patterns exist: template literals, const-in-loop, ES6 imports, signalMgr vs bus |
+| **Glob** | Verify file paths cited in output actually exist |
+| **Read** | Spot-check: read random files to verify content matches output claims |
+
 ---
 
 ## Key File Paths Quick Reference
