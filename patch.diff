@@ -84,3 +84,25 @@ index 0000000..d2e1f3a
 +- DTOs and Mappings: network DTOs mapped to domain models.
 +
 +## Security
++- JWT for user authentication.
++- Rate limiting per endpoint.
+diff --git a/skills/ultimate_mobile_game_developer/analysis/GDD_GENERATOR.md b/skills/ultimate_mobile_game_developer/analysis/GDD_GENERATOR.md
+new file mode 100644
+index 0000000..c3d4e5f
+--- /dev/null
++++ b/skills/ultimate_mobile_game_developer/analysis/GDD_GENERATOR.md
+@@ -0,0 +1,13 @@
++# GDD Generator (PROJECT INTELLIGENCE MODE)
++
++## Purpose
++Auto-generate a Game Design Document skeleton from codebase and design patterns.
++
++## Inputs
++- Codebase snapshot, GDD references, architecture notes.
++
++## Outputs
++- GAME_DESIGN.md, concept docs, feature backlog.
++
++## Workflow
++1. Parse project structure. 2. Extract core gameplay loops. 3. Produce draft GDD.
+
