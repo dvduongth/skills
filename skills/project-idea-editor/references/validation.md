@@ -177,16 +177,9 @@ done
 #### Required Rules in Matrix
 
 ```
-[ ] Board tiles count (40)
-[ ] Win KC threshold (600)
-[ ] Safe zones (1, 11, 21, 31)
-[ ] KC tiles (5, 10, 15, 20, 25, 30, 35, 40)
-[ ] Dice modes (SINGLE/DOUBLE)
-[ ] Token count per player (2)
-[ ] Max players (4)
-[ ] Card hand limits (3 init, 5 max)
+[ ] Win point threshold (point)
 [ ] Economy values (tax rate)
-[ ] Player.isOpenGate() threshold (KNOWN RISK)
+[ ] Game mechanics (value) 
 ```
 
 #### Meta-Validation

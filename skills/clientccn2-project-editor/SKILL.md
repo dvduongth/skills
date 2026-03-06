@@ -25,7 +25,79 @@ The client is a **pure renderer** — all game logic is server-authoritative. Do
 
 ## Project Context
 
-CCN2 game client is a Cocos2d-x JS 3.8.1 application rendering a competitive multiplayer board game (40-tile circular board, 2-4 players).
+CCN2 game client is a Cocos2d-x JS 3.8.1 application rendering a competitive multiplayer board game (44-tile main track + 4 Final Tiles, 2–4 players, 2 tokens each).
+
+### Game Design Quick Reference (GDD v2.0)
+
+> Source: `clientccn2/document/GameDesignDocument.md` — always read before code generation or consistency checks.
+
+**Key Constants:**
+
+| Rule | Value |
+|------|-------|
+| Board main track | **44 tiles** (`Board.mainTrack[44]`) |
+| Final Tiles (LADDER) | 4 — one per color (winning tile) |
+| Safe zones | 4 — tiles 1 (GREEN), 11 (RED), 21 (BLUE), 31 (YELLOW) |
+| Tokens per player | 2 |
+| Win condition | **600 DIAMOND** → gate opens → land on LADDER tile |
+| Match timeout | 60 minutes |
+| Kick diamond steal | 1% (`percentCoinKick: 1`) |
+| Starting hand | 3 cards, max 5 in hand, side deck max 9 |
+| Extra turn on doubles | Max 1 per turn (`maxExtraPerTurn: 1`) |
+| Default bet | 5,000 gold; 10% tax on win |
+| EXP (win / lose) | 400 / 200 |
+
+**Tile Types:**
+
+| Type | Description |
+|------|-------------|
+| `SAFE_ZONE` | No kicking; starting position (tiles 1, 11, 21, 31) |
+| `REWARD` | Grants DIAMOND on landing; has `level`, `baseDiamond` |
+| `EMPTY` | No inherent effect |
+| `LADDER` | Final/winning tile — one per color; requires gate open |
+
+**Token States:** `ON_SAFE_ZONE` → `ON_TRACK` → `FINISHED`
+
+**Move Types:** `MOVE`, `TELEPORT`, `KICKED`, `BE_KICK`, `EXPORT`
+
+**Game States:** `WAIT_PLAYER`, `ROLL_DICE`, `MOVE`, `EFFECT`, `END_TURN`
+
+**Turn Flow:**
+```
+PLAYER_TAKE_TURN → ROLL_DICE → GET_PATHS_CAN_MOVE → MOVE_TOKEN
+→ LAND_RESOLUTION → UPDATE_DIAMOND → CHECK_GATE → CHECK_WIN → END_TURN
+```
+
+**Action Queue TriggerPhases (in order):**
+```
+INSTANT → PRE_ROLL → POST_ROLL → PRE_MOVE → POST_MOVE
+→ PRE_KICK → POST_KICK → PRE_AFFECT → POST_AFFECT → END_GAME
+```
+
+**Passive Ability Types (7):**
+`KEEP_DIAMOND`, `BONUS_DIAMOND`, `EMPTY_TILE_DIAMOND`, `START_DIAMOND`,
+`KICK_EXTRA_TURN`, `SHARE_DIAMOND`, `PASS_LADDER_DIAMOND`
+
+**Round Event Types (6):**
+`InitialDiamond`, `RandomMaxUp`, `CardDiamondBonus`, `ForceOpenGate`,
+`RoundEventCastOn`, `RunningLeadReward`
+
+**Consumable Booster Types (4):**
+`CB_RE_ROLL_DICE`, `CB_UPGRADE_PASSIVE`, `CB_DRAW_DOUBLE_SKILL_CARD`, `CB_DRAW_SKILL_CARD_PER_TURN`
+
+**Diamond Actions (ActionQueue):**
+`ActionGainDiamond`, `ActionStealDiamond`, `ActionClaimDiamond`,
+`ActionDropDiamond`, `ActionBuffDiamond`, `ActionMoveDiamond`
+
+**Status Effects:** `ActionFreeze` (cannot move), `ActionJail` (imprisoned), `ActionBreakJail` (frees jail)
+
+**Board Data Structures:**
+- `Board.mainTrack[44]` — circular 44-tile main track
+- `Board.tileLane[color][6]` — per-color tile lane (approach to LADDER tile)
+- `Player.DIAMOND` — accumulated Ladder Points (goal: 600)
+- `Player.gateOpened` — true when DIAMOND >= 600
+
+---
 
 ### Technology Stack
 
@@ -37,6 +109,8 @@ CCN2 game client is a Cocos2d-x JS 3.8.1 application rendering a competitive mul
 | Test | Jest + Babel | Node.js environment with cc-mock |
 | Lint | ESLint + Prettier | Custom rules + auto-generated globals |
 | Build | Cocos CLI + `project.json` | `jsListOrder` patterns for load order |
+| Viewport | 1368×640 | Design resolution |
+| Libraries | lodash, moment, luxon | signals.js, md5, aes, hashids |
 
 ### Critical Constraints
 
@@ -76,7 +150,7 @@ clientccn2/
 │   │   └── Cheat.js                       # Cheat flags
 │   ├── events/
 │   │   ├── EventBus.js                    # gv.bus — new event system (327 lines)
-│   │   └── EventKeys.js                   # 45+ event key constants
+│   │   └── EventKeys.js                   # 59+ documented event keys (15 categories)
 │   ├── framework/
 │   │   ├── core/
 │   │   │   ├── ServiceContainer.js        # Dependency injection
@@ -120,7 +194,7 @@ clientccn2/
 │   │   │   │   ├── board/
 │   │   │   │   │   ├── Board.js           # Board state (tiles + tokens)
 │   │   │   │   │   ├── Tile.js, Token.js, Dice.js, Deck.js
-│   │   │   │   ├── action/                # 28 action types
+│   │   │   │   ├── action/                # 30+ action types (8 categories)
 │   │   │   │   │   ├── BaseAction.js      # Abstract action base
 │   │   │   │   │   ├── ActionQueue.js     # Phase-based queue processor
 │   │   │   │   │   ├── ActionGainDiamond, ActionDropDiamond, ActionStealDiamond...
@@ -167,7 +241,7 @@ clientccn2/
 │   │   └── actions/                       # New action types (post-refactor)
 │   └── SignalMgr.js                       # Legacy event signal manager
 ├── res/
-│   └── config/                            # 43+ JSON config files
+│   └── config/                            # 44 JSON config files
 │       ├── Board.json, Game.json, Card.json, Passive.json
 │       ├── Characters.json, CharacterUpgrade.json
 │       ├── Item.json, ItemGroup.json (generated from server)
@@ -237,7 +311,7 @@ Server packet → GameModule.handleXxx()
 | Pattern | Where | Details |
 |---------|-------|---------|
 | Module | `modules/*/` | BaseModule + command handler + API |
-| Event Bus | `events/EventBus.js` | `gv.bus.on/off/emit` with 45+ keys |
+| Event Bus | `events/EventBus.js` | `gv.bus.on/off/emit` with 59+ documented events |
 | Action Queue | `game/logic/action/` | Phase-based sequential effect processing |
 | DI Container | `framework/core/ServiceContainer.js` | New code dependency injection |
 | State Machine | `navigation/NavigationCoordinator.js` | Scene transitions |
@@ -250,12 +324,14 @@ Server packet → GameModule.handleXxx()
 
 | Document | Path | Purpose |
 |----------|------|---------|
-| Game Design Document | `document/GameDesignDocument.md` | Authoritative game rules |
-| Technical Architecture | `TechnicalArchitectureDocument.md` | Architecture analysis |
+| Game Design Document | `clientccn2/document/GameDesignDocument.md` | Authoritative game rules |
+| Technical Architecture | `clientccn2/document/TechnicalArchitectureDocument.md` | Architecture analysis (16 sections) |
 | Client CLAUDE.md | `clientccn2/CLAUDE.md` | Client conventions & constraints |
 | Root CLAUDE.md | `CLAUDE.md` | Build commands, project layout |
 
-### Config Files (res/config/) — 43+ files
+> **Deep reference**: Read `references/tech-arch-summary.md` for CMD ID ranges, action categories, event categories, data flow diagrams, domain object mapping, module registry, and known technical debt. Use when working on network, actions, events, or architecture.
+
+### Config Files (res/config/) — 44 files
 
 | Category | Files |
 |----------|-------|
@@ -295,15 +371,15 @@ npm run scan-resources       # Scan used resources
 
 Steps:
 1. Read `clientccn2/CLAUDE.md` for conventions and constraints
-2. Read `document/GameDesignDocument.md` for game rules
+2. Read `clientccn2/document/GameDesignDocument.md` for game rules
 3. Scan source structure:
    - `src/modules/` — module inventory (25+ modules)
-   - `src/modules/game/logic/` — game model + 28 action types
+   - `src/modules/game/logic/` — game model + 30+ action types
    - `src/modules/game/logic/action/` — ActionQueue pipeline
-   - `src/events/EventKeys.js` — event catalog (45+ keys)
+   - `src/events/EventKeys.js` — event catalog (59+ documented events, 15 categories)
    - `src/framework/core/` — DI, state, error handling
    - `src/modules/config/` — config loaders (18 configs)
-4. Inventory `res/config/` — 43+ JSON config files
+4. Inventory `res/config/` — 44 JSON config files
 5. Check dual architecture status (legacy vs new code ratio)
 6. Produce structured summary:
    - Module inventory table
@@ -316,6 +392,8 @@ Steps:
 ### 2. `generate_client_tech_doc`
 
 **Purpose:** Generate or update client-specific technical documentation.
+
+> Reference: existing Tech Doc at `clientccn2/document/TechnicalArchitectureDocument.md` (16 sections). Read it first; update or regenerate as needed.
 
 Steps:
 1. Run `scan_client` if not done this session
@@ -376,12 +454,14 @@ Steps:
 
 Steps:
 1. Read `ActionQueue.js` and `BaseAction.js` for current patterns
-2. Inventory all 28 existing action types
-3. For new action:
-   - Extend `BaseAction`
-   - Implement `action()` method (business logic)
+2. Read `references/tech-arch-summary.md` → "Action Type Categories" for full catalog
+3. Inventory all 30+ existing action types across 8 categories:
+   Movement, Economy, Status, Combat, Cards, Cast-On, Round Events, Passives
+4. For new action:
+   - Extend `BaseAction` (lifecycle: `action()` → `doAction()` → `doneAction()` → `destroy()`)
+   - Override `doAction()` for business logic
    - Call `gv.bus.emit()` for UI updates
-   - Call `doneAction()` on completion
+   - Call `doneAction()` on completion (with delay for animations)
    - Register in `ActionType.js` if needed
    - Determine correct `TriggerPhase`
 4. For modifying existing action:
@@ -401,7 +481,8 @@ Steps:
 
 Steps:
 1. Read `EventBus.js` and `EventKeys.js`
-2. Inventory all 45+ event keys with their emitters and listeners
+2. Read `references/tech-arch-summary.md` → "Event Categories" for the 15-category breakdown
+3. Inventory all 59+ documented events with their emitters and listeners
 3. For new event:
    - Add key to `EventKeys.js`
    - Document: who emits, who listens, payload shape
@@ -471,14 +552,27 @@ Steps:
    - `modules/game/logic/board/Board.js` — tile count, pathfinding
 3. Build consistency matrix:
 
-| Rule | GDD | Client Config | Client Code | Status |
-|------|-----|--------------|-------------|--------|
-| Board tiles | 40 | Board.json:? | Board.js:? | ? |
-| Win KC | 600 | Board.json:`pointOpenGate`? | Player.js:`isOpenGate()`? | ? |
+| Rule | GDD (v2.0) | Client Config | Client Code | Status |
+|------|-----------|--------------|-------------|--------|
+| Main track tiles | **44** | Board.json:`mainTrack` len? | Board.js array? | ? |
+| Win DIAMOND | **600** (`pointOpenGate`) | Board.json:`pointOpenGate`? | Player.js:`isOpenGate()`? | ? |
+| Tokens per player | **2** (`tokensPerPlayer`) | Board.json:? | Player.js:? | ? |
+| Kick steal | **1%** (`percentCoinKick`) | Board.json:? | kick logic:? | ? |
+| Extra turns max | **1** (`maxExtraPerTurn`) | Board.json:? | dice logic:? | ? |
+| Card hand max | **5** (`numCardMax`) | Board.json:? | Deck.js:? | ? |
+| Starting cards | **3** (`numCardInit`) | Board.json:? | Deck.js:? | ? |
+| Safe zone tiles | 1, 11, 21, 31 | Board.json tiles? | Tile.js type? | ? |
+| Tile types | SAFE_ZONE, REWARD, EMPTY, LADDER | Board.json type enums? | GameConst.js? | ? |
+| Action phases | 10 TriggerPhases | — | ActionQueue.js? | ? |
+| Passive types | 7 | Passive.json? | passive/ dir? | ? |
+| Round events | 6 | RoundEvent.json? | round_event/ dir? | ? |
 
 4. Cross-reference with server code if needed
 5. Report mismatches with severity levels
-6. Special attention: `Player.isOpenGate()` — known potential mismatch (may use 300 vs 600)
+6. Special attention:
+   - `Player.isOpenGate()` — must use **600 DIAMOND** threshold (not 300)
+   - Board tile count — must be **44** main track tiles (not 40)
+   - Tile type names — must match GDD: `SAFE_ZONE`, `REWARD`, `EMPTY`, `LADDER`
 
 ### 9. `generate_client_code`
 

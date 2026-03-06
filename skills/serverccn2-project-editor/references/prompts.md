@@ -118,10 +118,10 @@ Build a consistency matrix comparing:
 - Server source code (modules/games/room/, abilities/)
 
 Key items to verify:
-- Board size (40 tiles)
-- Win condition (600 KC)
+- Board size (44 tiles)
+- Win condition (600 DIAMOND)
 - Safe zones (tiles 1, 11, 21, 31)
-- KC tiles (5, 10, 15, 20, 25, 30, 35, 40)
+- DIAMOND tiles (5, 10, 15, 20, 25, 30, 35, 40)
 - Dice modes (SINGLE/DOUBLE)
 - Card hand limits
 - Economy values (tax rate, kick steal percentage)

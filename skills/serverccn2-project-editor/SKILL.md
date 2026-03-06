@@ -375,8 +375,8 @@ Steps:
 
 | Rule | GDD | Server Config | Server Code | Status |
 |------|-----|--------------|-------------|--------|
-| Board tiles | 40 | Board.json:? | Room logic:? | ? |
-| Win KC | 600 | ? | Room logic:? | ? |
+| Board tiles | 44 | Board.json:? | Room logic:? | ? |
+| Win DIAMOND | 600 | ? | Room logic:? | ? |
 | Safe zones | 1,11,21,31 | Board.json:? | ? | ? |
 
 4. Cross-reference with client code if needed (Board.json, Game.json)
@@ -585,7 +585,7 @@ These rules apply to ALL commands:
 | "Prepare for deploy" | `review_deploy` |
 | "Refactor payment module" | `refactor_server` |
 | "Is the server code matching GDD?" | `check_server_consistency` |
-| "Change win condition to 500 KC" | `edit_server_idea` → `check_server_consistency` |
+| "Change win condition to 500 DIAMOND" | `edit_server_idea` → `check_server_consistency` |
 | "Compare all env configs" | `manage_config` (4c) |
 | "Validate last output" | `validate_result` |
 | "Check if scan is correct" | `validate_result` |

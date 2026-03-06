@@ -40,8 +40,8 @@ Claude will:
 
 **Output:**
 - Feature impact analysis
-- Updated `TechnicalArchitectureDocument.md` (if needed)
-- Updated `document/GameDesignDocument.md` (if game rules change)
+- Updated `documents/TechnicalArchitectureDocument.md` (if needed)
+- Updated `documents/GameDesignDocument.md` (if game rules change)
 
 ### Phase 3: Configure & Manage
 
@@ -149,8 +149,8 @@ scan_server → validate_result → refactor_server → validate_result → chec
 | New packet | Packet class + KSP → `MSerializer.js` (auto-generated) |
 | New environment | `configByMode/{name}/config/*`, `build.gradle.kts` (deploy task) |
 | Config edit | `configByMode/{env}/config/server.properties` |
-| GDD update | `document/GameDesignDocument.md` |
-| Tech doc | `TechnicalArchitectureDocument.md` |
+| GDD update | `documents/GameDesignDocument.md` |
+| Tech doc | `documents/TechnicalArchitectureDocument.md` |
 
 ---
 

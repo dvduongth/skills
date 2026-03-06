@@ -5,8 +5,8 @@
 ### scan_project
 | Tool | Purpose |
 |------|---------|
-| **Read** | Read `CLAUDE.md`, `GameDesignDocument.md`, `TechnicalArchitectureDocument.md` |
-| **Glob** | Find all `.js` files in client, all `.kt` files in server |
+| **Read** | Read `CLAUDE.md`, `documents/GameDesignDocument.md`, `documents/TechnicalArchitectureDocument.md` |
+| **Glob** | Find all code file (eg:`.js`) files in client, all (eg:`.kt`) files in server |
 | **Grep** | Search for module registrations, event keys, action types |
 | **Agent (Explore)** | Deep exploration of client modules/, server modules/ (parallelize) |
 | **Bash** | Count files, list directories |
@@ -69,39 +69,39 @@
 
 ### Documents
 ```
-DEMO/GameDesignDocument.md                               # GDD (authoritative)
-TechnicalArchitectureDocument.md                         # Architecture doc
+documents/GameDesignDocument.md                               # GDD (authoritative)
+documents/TechnicalArchitectureDocument.md                         # Architecture doc
 CLAUDE.md                                                # Project conventions
-clientccn2/CLAUDE.md                                     # Client conventions
+_$project_name/CLAUDE.md                                     # Client conventions
 ```
 
 ### Client Core
 ```
-clientccn2/main.js                                       # Boot entry
-clientccn2/src/events/EventBus.js                        # gv.bus
-clientccn2/src/events/EventKeys.js                       # 45+ event constants
-clientccn2/src/modules/game/logic/Game.js                # Main game state
-clientccn2/src/modules/game/logic/action/ActionQueue.js  # Action queue
-clientccn2/src/modules/game/logic/action/BaseAction.js   # Action base class
-clientccn2/src/modules/game/logic/ActionType.js          # Action type constants
-clientccn2/src/framework/core/ServiceContainer.js        # DI container
-clientccn2/src/common/MSerializer.js                     # Auto-generated serializer
+client_$project_name/main.js                                       # Boot entry
+client_$project_name/src/events/EventBus.js                        # gv.bus
+client_$project_name/src/events/EventKeys.js                       # event constants
+client_$project_name/src/modules/game/logic/Game.js                # Main game state
+client_$project_name/src/modules/game/logic/action/ActionQueue.js  # Action queue
+client_$project_name/src/modules/game/logic/action/BaseAction.js   # Action base class
+client_$project_name/src/modules/game/logic/ActionType.js          # Action type constants
+client_$project_name/src/framework/core/ServiceContainer.js        # DI container
+client_$project_name/src/common/MSerializer.js                     # Auto-generated serializer
 ```
 
 ### Server Core
 ```
-serverccn2/src/main/kotlin/org/ccn2/Main.kt              # Entry point
-serverccn2/src/main/kotlin/org/ccn2/CCN2ModuleInitializer.kt  # Module registry
-serverccn2/src/main/kotlin/org/ccn2/config/GameCfg.kt    # Config singleton
-serverccn2/src/main/kotlin/org/ccn2/modules/CmdDefine.kt # Command definitions
+server_$project_name/src/main/kotlin/org/ccn2/Main.kt              # Entry point
+server_$project_name/src/main/kotlin/org/ccn2/CCN2ModuleInitializer.kt  # Module registry
+server_$project_name/src/main/kotlin/org/ccn2/config/GameCfg.kt    # Config singleton
+server_$project_name/src/main/kotlin/org/ccn2/modules/CmdDefine.kt # Command definitions
 ```
 
 ### Configs
 ```
-clientccn2/res/config/Board.json                         # Board layout
-clientccn2/res/config/Game.json                          # Game settings
-serverccn2/res/Board.json                                # Server board config
-serverccn2/configByMode/*/config/server.properties       # Deploy environments
+client_$project_name/res/config/Board.json                         # Board layout
+client_$project_name/res/config/Game.json                          # Game settings
+server_$project_name/res/Board.json                                # Server board config
+server_$project_name/configByMode/*/config/server.properties       # Deploy environments
 ```
 
 ---
@@ -110,17 +110,17 @@ serverccn2/configByMode/*/config/server.properties       # Deploy environments
 
 ```bash
 # Client
-cd clientccn2 && npm test                  # Jest tests
-cd clientccn2 && npm run lint              # ESLint
-cd clientccn2 && npm run lint:global       # Re-scan globals + lint
-cd clientccn2 && npm run format            # Prettier
+cd client_$project_name && npm test                  # Jest tests
+cd client_$project_name && npm run lint              # ESLint
+cd client_$project_name && npm run lint:global       # Re-scan globals + lint
+cd client_$project_name && npm run format            # Prettier
 
 # Server
-cd serverccn2 && ./gradlew run             # Full build + generate + run
-cd serverccn2 && ./gradlew test            # All tests
-cd serverccn2 && ./gradlew compileKotlin   # Compile check only
+cd server_$project_name && ./gradlew run             # Full build + generate + run
+cd server_$project_name && ./gradlew test            # All tests
+cd server_$project_name && ./gradlew compileKotlin   # Compile check only
 
 # Cross-project
-cd serverccn2 && ./gradlew copyMSerializerJs    # Regenerate MSerializer.js
-cd serverccn2 && ./gradlew generateItemGroup    # Regenerate ItemGroup.json
+cd server_$project_name && ./gradlew copyMSerializerJs    # Regenerate MSerializer.js
+cd server_$project_name && ./gradlew generateItemGroup    # Regenerate ItemGroup.json
 ```

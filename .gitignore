@@ -1,0 +1,8 @@
+.skill-lock.json
+AGENTS.md
+CLAUDE.md
+.idea/
+core_files/
+memory/
+commands/
+settings.local.json

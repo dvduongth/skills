@@ -31,9 +31,9 @@ Validation is NOT optional — it runs automatically after each command to ensur
 ls -d clientccn2/src/modules/*/ | wc -l
 # Expected: matches scan output module count
 
-# Action type count: reported vs actual
+# Action type count: reported vs actual (action/ + passive/ + round_event/)
 find clientccn2/src/modules/game/logic/action/ -name "Action*.js" ! -name "ActionQueue.js" ! -name "ActionType.js" | wc -l
-# Expected: matches scan output action count (28)
+# Expected: matches scan output action count (spec=28 in action/, plus 9 passive, 7 round_event)
 
 # Event key count: reported vs actual
 grep -cE "^\s+[A-Z_]+:" clientccn2/src/events/EventKeys.js
@@ -47,6 +47,20 @@ ls clientccn2/res/config/*.json | wc -l
 echo "Legacy signalMgr:" && grep -r "gv\.signalMgr" clientccn2/src/ --include="*.js" -l | wc -l
 echo "New bus:" && grep -r "gv\.bus" clientccn2/src/ --include="*.js" -l | wc -l
 # Expected: ratio matches scan output
+```
+
+#### GDD Constants Spot-Check
+
+```bash
+# Board tile count must be 44 (GDD §2.1)
+grep -r "mainTrack" clientccn2/src/modules/game/logic/board/Board.js | head -3
+grep "44" clientccn2/res/config/Board.json | head -3
+
+# Win DIAMOND threshold must be 600 (GDD §4.1)
+grep -r "600\|pointOpenGate\|isOpenGate" clientccn2/src/modules/game/logic/Player.js | head -5
+
+# GDD file readable (path must be correct)
+[ -f "clientccn2/document/GameDesignDocument.md" ] && echo "GDD FOUND" || echo "GDD NOT FOUND — check path"
 ```
 
 #### Manual Spot-Checks (pick 3 random items)

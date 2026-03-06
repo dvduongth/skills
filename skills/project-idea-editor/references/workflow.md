@@ -2,7 +2,7 @@
 
 ## Overview
 
-This skill manages the CCN2 project through a **design-first, document-driven** workflow.
+This skill manages the game project through a **design-first, document-driven** workflow.
 All changes follow: **Analyze → Document → Approve → Implement → Verify & Validate**.
 Cross-project awareness is critical — changes often span both client and server.
 
@@ -41,8 +41,8 @@ Claude will:
 
 **Output:**
 - Feature impact analysis
-- Updated `TechnicalArchitectureDocument.md` (if architecture changes)
-- Updated `DEMO/GameDesignDocument.md` (if game rules change)
+- Updated `documents/TechnicalArchitectureDocument.md` (if architecture changes)
+- Updated `documents/GameDesignDocument.md` (if game rules change)
 
 ### Phase 3: Implement
 
@@ -130,8 +130,8 @@ scan_project → validate_result → refactor_codebase → validate_result → c
 
 | Action | Files |
 |--------|-------|
-| GDD update | `DEMO/GameDesignDocument.md` |
-| Tech doc | `TechnicalArchitectureDocument.md` |
+| GDD update | `documents/GameDesignDocument.md` |
+| Tech doc | `documents/TechnicalArchitectureDocument.md` |
 | Client action | `clientccn2/src/modules/game/logic/action/Action{Name}.js`, `ActionType.js`, `EventKeys.js` |
 | Client module | `clientccn2/src/modules/{name}/`, `BootSetup.js` |
 | Server module | `serverccn2/src/main/kotlin/org/ccn2/modules/{name}/`, `CCN2ModuleInitializer.kt` |
