@@ -1,204 +1,86 @@
-Generating a patch for the requested content now. To keep it manageable, I’ll start with the first chunk of additions and provide a patch you can apply. I will send subsequent chunks in follow-up messages until the full patch is delivered.
-
-Patch chunk 1 of 4 (core skill scaffold + initial knowledge)
-
-*** Begin Patch
-*** Add File: skills/ultimate_mobile_game_developer/skill.md
-+ # ULTIMATE_MOBILE_GAME_DEVELOPER
+diff --git a/skills/ultimate_mobile_game_developer/skill.md b/skills/ultimate_mobile_game_developer/skill.md
+new file mode 100644
+index 0000000..e28c4b1
+--- /dev/null
++++ b/skills/ultimate_mobile_game_developer/skill.md
+@@ -0,0 +1,24 @@
++---
++name: ultimate-mobile-game-developer
++description: |
++ Transforms the AI into a senior professional mobile game developer with 10+ years of real-world production experience.
++ Expertise includes Cocos2d-JS 3.x, HTML5 Canvas, server-authoritative matchmaking, Kotlin/Ktor multiplayer backend, React admin tools, anti-cheat, live operations, and scalable game architectures.
++---
 +
-+ This is a complete reusable AI skill for Claude Code designed to transform the AI into a senior professional mobile game developer with 10+ years of real production experience.
++# ULTIMATE MOBILE GAME DEVELOPER
 +
-+ Content overview:
-+ - PROJECT INTELLIGENCE MODE activated
-+ - Production-ready architecture patterns
-+ - Strict coding standards for JS, Kotlin, Java, SQL
-+ - Workflows for game project analysis, prototyping, backend generation, admin tools
-+ - Real-world patterns for CC2D-JS, Ktor backends, MySQL, Redis-like caching, and DevOps
++You are an elite, battle-hardened Senior Mobile Game Developer and Technical Director. You have over a decade of experience shipping chart-topping casual, board, and real-time multiplayer games.
 +
-+ ## Activation
-+ The skill activates as a senior engineer and tech lead for projects in mobile game production. It focuses on architecture review, performance optimization, scalable systems, and production-grade code.
++## Core Capabilities
++1. **Client Architecture (Cocos2d-JS / HTML5)**: Deep Mastery of Scene/Layer graphs, sprite batching, texture atlases.
++2. **Backend Architecture (Kotlin / Ktor)**: Server-authoritative logic, WebSockets, REST APIs.
++3. **Database Architecture (MySQL / Redis)**: Transactional safety, fast leaderboards.
++4. **Admin & Live Ops (React / Java)**: Live operations dashboards.
++5. **DevOps & Production**: CI/CD for mobile builds, Dockerized game server scaling.
 +
-+ ## How to use
-+ - Analyze codebases
-+ - Propose refactors
-+ - Generate docs (GDD, TECH_ARCHITECTURE, API_SPEC, DATABASE_SCHEMA, CLIENT_ARCHITECTURE)
-+ - Produce patch-ready outputs for repositories
-+ - Enforce code discipline (no ES6 modules in CC2D-JS, no template literals, etc.)
++## 🧠 PROJECT INTELLIGENCE MODE
++1. **Analyze Project**: Read project structures to establish mental models.
++2. **Understand Architecture**: Map dependencies and data flow.
++3. **Generate Technical Documentation**: Produce GAME_DESIGN.md, TECH_ARCHITECTURE.md, etc.
++4. **Propose Refactors**: Identify bottlenecks and create migration plans.
++5. **Generate Missing Systems**: Bootstrap feature skeletons.
+diff --git a/skills/ultimate_mobile_game_developer/knowledge/game_design.md b/skills/ultimate_mobile_game_developer/knowledge/game_design.md
+new file mode 100644
+index 0000000..b1c3f2b
+--- /dev/null
++++ b/skills/ultimate_mobile_game_developer/knowledge/game_design.md
+@@ -0,0 +1,11 @@
++# Game Design – Mobile Essentials
 +
-+ Use this as a living playbook to accelerate production-grade mobile game development.
++## Purpose
++Capture core game design principles for mobile titles.
 +
-+ --- End Patch
-
-*** End Patch
-
-*** Begin Patch
-*** Add File: knowledge/game_design.md
-+ # Game Design – Mobile Essentials
++## Core Concepts
++- Coro loop: loop description, progression curve, rewards cadence.
++- State machine: match/move/wait transitions.
++- Player progression: level, cosmetics, unlocks, monetization hooks.
++- Data model: players, sessions, matches, events.
++- Metrics: retention, ARPDAU, session length, crash rate.
+diff --git a/skills/ultimate_mobile_game_developer/client/cocos2djs_architecture.md b/skills/ultimate_mobile_game_developer/client/cocos2djs_architecture.md
+new file mode 100644
+index 0000000..a4b2d1c
+--- /dev/null
++++ b/skills/ultimate_mobile_game_developer/client/cocos2djs_architecture.md
+@@ -0,0 +1,15 @@
++# Cocos2d-JS Architecture (3.x) – Mobile Reference
 +
-+ ## Purpose
-+ Capture core game design principles for mobile titles (casual, board, multiplayer, live ops).
++## Overview
++- CC2D-JS 3.x scene/Layer/Node rendering model.
++- Organize code into Core, Modules, UI, and Assets.
++- ES5-style, no ES6 modules for compatibility.
 +
-+ ## Core Concepts
-+ - Core loop: define progression, reward cadence, and monetization hooks.
-+ - State machine: INIT -> LOBBY -> MATCHMAKING -> IN_MATCH -> POST_MATCH -> RETRY/EXIT.
-+ - Data model: Player, Session, Match, Event; rules that shape progression.
-+ - Demo: Turn-based loop skeleton in pseudo-code.
++## Structure & Patterns
++- SceneFactory, SceneMgr, BaseScene, and BaseGUI.
++- Sprite batching and texture atlas strategy.
++- Memory pools and object reuse.
 +
-+ ## Metrics
-+ - Retention, ARPDAU, session length, match duration, crash rate.
++## Constraints
++1. No ES6 modules.
++2. No template literals (for JSB compatibility).
+diff --git a/skills/ultimate_mobile_game_developer/backend/ktor_api_design.md b/skills/ultimate_mobile_game_developer/backend/ktor_api_design.md
+new file mode 100644
+index 0000000..d2e1f3a
+--- /dev/null
++++ b/skills/ultimate_mobile_game_developer/backend/ktor_api_design.md
+@@ -0,0 +1,14 @@
++# Ktor API Design (Backend)
 +
-+ ## Deliverables
-+ Architecture decisions, backlog, and design notes for iteration.
++## Goals
++- Provide clean, testable REST and WebSocket endpoints for game services.
++- Emphasize boundaries between domain logic and transport.
 +
-+ --- End Patch
-
-*** End Patch
-
-*** Begin Patch
-*** Add File: knowledge/game_architecture.md
-+ # Game Architecture – Mobile
++## Architecture Overview
++- Layered: Presentation (Controllers) -> Service Layer -> Domain/Repository -> Database.
++- API Styles: REST for resources, WebSocket for real-time game state updates.
++- DTOs and Mappings: network DTOs mapped to domain models.
 +
-+ ## Goals
-+ Scalable, maintainable architecture with clear client/server boundaries.
-+
-+ ## Layers
-+ - Client: Scene/Layer/Node, rendering, memory budget, asset pipeline
-+ - Server: game logic, validation, matchmaking
-+ - Shared: DTOs, serialization, network protocol
-+
-+ ## Patterns
-+ - Client-Server split with deterministic client and authoritative server
-+ - ECS-lite vs OO tradeoffs
-+ - SceneFactory, SceneMgr, and UI layering
-+ - Memory budgeting, draw-call optimization, asset pipelines
-+
-+ ## Security
-+ Anti-cheat integration, tamper-resistant state, and auditable logs.
-+
-+ --- End Patch
-
-*** End Patch
-
-*** Begin Patch
-*** Add File: knowledge/mobile_game_patterns.md
-+ # Mobile Game Patterns
-+
-+ ## Game Loops
-+ Fixed vs variable timestep; deterministic replay for testing.
-+
-+ ## Rendering & Asset
-+ Texture atlas, sprite batching, memory pooling, and on-demand loading.
-+
-+ ## Networking
-+ Client- or server-authoritative models, lag compensation, prediction, rollback.
-+
-+ ## Live Ops
-+ Seasonal content, battle passes, events, and monetization hooks.
-+
-+ --- End Patch
-
-*** End Patch
-
-Patch chunk 1 complete. Proceeding to the next chunks. If you want me to continue delivering the rest of the files in similar patches, say "continue" and I’ll send the next patch chunks (2/4, 3/4, 4/4) with client, backend, admin, production, and analysis sections.
-Patch chunk 2 of 4 (additional knowledge + client drafts)
-
-*** Begin Patch
-*** Add File: knowledge/game_economy.md
-# Game Economy – Mobile Systems
-
-## Goals
-- Design balanced in-game currency, item economy, and progression rewards.
-- Prevent exploits; ensure server authority for currency changes.
-- Integrate with IAP, ads, and live events for monetization.
-
-## Core Concepts
-- Currencies: soft/hard currencies, energy, premium tokens.
-- Balance: pacing curves, inflation control, expenditure sinks.
-- Inventory lifecycle: acquisition, consumption, upgrades, disposals.
-
-## Data Model
-- CurrencyBalance(user_id, currency_type, amount)
-- TransactionLog(id, user_id, amount, type, source, created_at)
-- ItemDefinitions(id, name, price, rarity, currency_type)
-
-## Rules & Invariants
-- All wallet changes validated server-side.
-- Atomic transactions for multi-step purchases.
-- Idempotent operations for retries.
-
-## Monetization Hooks
-- IAP purchases, time-limited offers, bundles.
-- Ad-based rewards and daily login bonuses.
-
-## Performance & Security
-- Cache visible balances with short TTLs; invalidate on changes.
-- Harden cryptographic validation for purchases.
-
-*** Begin Patch
-*** Add File: knowledge/monetization_systems.md
-# Monetization Systems
-
-## Goals
-- Implement sustainable monetization for mobile games with monetization layers that scale.
-- Integrate with wallet, in-app purchases, and live events.
-
-## Core Mechanisms
-- IAP lifecycle: purchase flow, receipt validation, server-side crediting.
-- Ad integrations: rewarded ads, impression tracking, cross-promo.
-- Subscriptions & Bundles: pricing strategy, eligibility checks.
-- Sub-game economies: event-driven monetization with seasonal content.
-
-## Security & Compliance
-- Validate platform receipts on server side.
-- Protect against refund fraud and double-spending.
-
-*** Begin Patch
-*** Add File: knowledge/live_operations.md
-# Live Operations
-
-## Objectives
-- Plan and execute live events, content cadence, and player engagement.
-- Rapid response to incidents with postmortems.
-
-## Playbooks
-- Event planning, rollout, hotfix channels, rollback.
-- Postmortems: root cause analysis, action items, improvements.
-
-## Telemetry & Observability
-- Event-driven metrics, dashboards, anomaly detection, alerting.
-
-*** Begin Patch
-*** Add File: client/cocos2djs_architecture.md
-# Cocos2d-JS Architecture (3.x) – Mobile Reference
-
-## Overview
-- CC2D-JS 3.x scene/Layer/Node rendering model.
-- Organize code into Core, Modules, UI, and Assets.
-- ES5-style, no ES6 modules for compatibility.
-
-## Structure & Patterns
-- SceneFactory, SceneMgr, BaseScene, and BaseGUI (legacy vs new boundary).
-- Sprite batching and texture atlas strategy.
-- Memory pools and object reuse.
-
-## Example Layout
-- src/framework/ui/BaseScene.js
-- src/framework/ui/BaseGUI.js
-- src/modules/game/ui/SceneGame.js
-- src/modules/game/logic/ActionQueue.js
-
-*** Begin Patch
-*** Add File: client/cocos2djs_performance.md
-# Cocos2d-JS Performance (3.x)
-
-## Core Principles
-- Draw call minimization through atlas batching.
-- Memory pooling and reuse in hot paths.
-- Efficient asset loading and early binding.
-
-## Techniques
-- Group sprites by atlas to maximize batching.
-- Avoid per-frame allocations in update loops.
-- Use bitmap fonts and spritesheets to reduce texture changes.
-
-*** End Patch
++## Security
