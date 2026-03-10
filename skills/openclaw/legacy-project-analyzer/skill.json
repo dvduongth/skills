@@ -1,0 +1,61 @@
+{
+  "name": "legacy-project-analyzer",
+  "version": "1.0.0",
+  "description": "Analyze legacy projects and generate comprehensive documentation including GDD, technical architecture, and gap analysis",
+  "main": "index.js",
+  "scripts": {
+    "run": "python legacy_project_analyzer.py"
+  },
+  "keywords": ["analysis", "documentation", "gdd", "legacy"],
+  "author": "",
+  "license": "ISC",
+  "openclaw": {
+    "skill": {
+      "name": "Legacy-Project-Analyzer",
+      "description": "Automated legacy project analysis tool that scans codebases, identifies gaps in documentation, and generates Game Design Documents (GDD), Technical Architecture Documents, and implementation plans. Supports config analysis, core system analysis, network protocol analysis, and client architecture review.",
+      "commands": [
+        {
+          "name": "scan",
+          "description": "Quick surface scan of project structure and identify missing documentation",
+          "usage": "openclaw skill run Legacy-Project-Analyzer scan <project_path> [--output-dir <dir>]"
+        },
+        {
+          "name": "full_analysis",
+          "description": "Complete analysis including config, core, network, and client modules",
+          "usage": "openclaw skill run Legacy-Project-Analyzer full_analysis <project_path> [--output-dir <dir>]"
+        },
+        {
+          "name": "analyze_config",
+          "description": "Analyze configuration files and generate config documentation",
+          "usage": "openclaw skill run Legacy-Project-Analyzer analyze_config <project_path> [--output-dir <dir>]"
+        },
+        {
+          "name": "analyze_core",
+          "description": "Analyze core game systems and generate core documentation",
+          "usage": "openclaw skill run Legacy-Project-Analyzer analyze_core <project_path> [--output-dir <dir>]"
+        },
+        {
+          "name": "analyze_network",
+          "description": "Analyze network protocols and generate network documentation",
+          "usage": "openclaw skill run Legacy-Project-Analyzer analyze_network <project_path> [--output-dir <dir>]"
+        },
+        {
+          "name": "analyze_client",
+          "description": "Analyze client architecture and generate client documentation",
+          "usage": "openclaw skill run Legacy-Project-Analyzer analyze_client <project_path> [--output-dir <dir>]"
+        },
+        {
+          "name": "synthesize",
+          "description": "Synthesize all analysis outputs into final GDD",
+          "usage": "openclaw skill run Legacy-Project-Analyzer synthesize <project_path> [--output-dir <dir>]"
+        }
+      ],
+      "examples": [
+        "openclaw skill run Legacy-Project-Analyzer scan D:\\PROJECT\\CCN2\\clientccn2",
+        "openclaw skill run Legacy-Project-Analyzer full_analysis D:\\PROJECT\\CCN2\\clientccn2 --output-dir D:\\PROJECT\\CCN2\\clientccn2\\document"
+      ],
+      "requires": ["python"],
+      "tags": ["documentation", "analysis", "gdd", "architecture", "legacy"]
+    }
+  }
+}
