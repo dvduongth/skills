@@ -92,6 +92,35 @@ Reasoning: Formal verification, Byzantine failures, 1000+ node optimization
 - Makes reasoning unclear
 - Add model decision to your opening statement
 
+## Alternative Models (Fallbacks)
+
+If the preferred Claude model is unavailable, use these fallbacks based on provider:
+
+### Extreme Complexity (Formal verification, distributed systems, advanced proofs)
+- Primary: `anthropic/claude-opus-4-6` (Anthropic)
+- Fallbacks:
+  - `openrouter/openai/gpt-4o` (OpenAI)
+  - `openrouter/google/gemini-ultra` (Google)
+  - `openrouter/anthropic/claude-3-opus` (Anthropic legacy)
+
+### Deep Analysis (Architecture review, system design, complex reasoning)
+- Primary: `anthropic/claude-sonnet-4-6` (Anthropic)
+- Fallbacks:
+  - `openrouter/openai/gpt-4` (OpenAI)
+  - `openrouter/anthropic/claude-3-sonnet` (Anthropic legacy)
+  - `openrouter/google/gemini-pro` (Google)
+  - `openrouter/meta-ai/llama-3.1-405b` (Meta)
+
+### Assembly/Format/Search (Simple tasks, formatting, basic transformations)
+- Primary: `anthropic/claude-haiku-4-5` (Anthropic)
+- Fallbacks:
+  - `openrouter/stepfun/step-3.5-flash` (StepFun)
+  - `openrouter/openai/gpt-4o-mini` (OpenAI)
+  - `openrouter/anthropic/claude-3-haiku` (Anthropic legacy)
+  - `openrouter/meta-ai/llama-3.1-70b` (Meta)
+
+**Note**: When using OpenRouter models, prefix with `openrouter/` as shown. For direct provider access (if configured), use the appropriate model ID.
+
 ## Implementation
 
 Always state your model choice when starting a task:
