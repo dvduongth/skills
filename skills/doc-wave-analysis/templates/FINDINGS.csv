@@ -1,0 +1,4 @@
+ID,Wave,Document,Category,Severity,Finding,Recommendation,Status
+F001,Wave1,{doc_name},{category},{HIGH/MEDIUM/LOW},{finding_description},{recommendation},OPEN
+F002,Wave1,{doc_name},{category},{HIGH/MEDIUM/LOW},{finding_description},{recommendation},OPEN
+F003,Wave2,{doc_name},{category},{HIGH/MEDIUM/LOW},{finding_description},{recommendation},OPEN
