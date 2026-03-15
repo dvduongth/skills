@@ -1,0 +1,38 @@
+# Research Agent Eval Task Template
+# Docs: references/agent-types.md
+task_id: REPLACE_ME
+agent_type: research
+description: "REPLACE: what information to research"
+difficulty: medium
+eval_mode: capability
+k: 3
+metric: pass-at-k
+timeout_seconds: 600        # research tasks take longer
+
+environment:
+  type: web_access
+  allowed_domains: ["*"]    # REPLACE: restrict if needed
+
+input:
+  prompt: "REPLACE: exact research question or synthesis task"
+  expected_topics:          # REPLACE: topics the output MUST cover
+    - "REPLACE topic 1"
+    - "REPLACE topic 2"
+
+graders:
+  - type: coverage_check
+    required_topics: expected_topics
+    weight: 0.4
+  - type: groundedness
+    check: "every claim has source URL"
+    weight: 0.3
+  - type: hallucination_check
+    weight: 0.2
+  - type: human
+    queue: expert_review
+    weight: 0.1
+
+tracked_metrics:
+  - n_tool_calls
+  - n_tokens
+  - latency_ms

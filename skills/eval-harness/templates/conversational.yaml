@@ -1,0 +1,35 @@
+# Conversational Agent Eval Task Template
+# Docs: references/agent-types.md
+task_id: REPLACE_ME
+agent_type: conversational
+description: "REPLACE: one sentence describing the conversation scenario"
+difficulty: medium
+eval_mode: regression       # use regression for production bots
+k: 5                        # more trials for pass^k reliability
+metric: pass-pow-k          # ALL trials must pass for production
+timeout_seconds: 120
+
+environment:
+  type: simulated_user
+  user_sim_model: claude-sonnet-4-6
+  user_persona: "REPLACE: e.g. 'frustrated customer, wants refund'"
+  backend_state:            # REPLACE: initial state of backend systems
+    order_id: "REPLACE"
+
+input:
+  scenario: "REPLACE: what the user wants to accomplish"
+
+graders:
+  - type: state_check
+    check: "REPLACE: e.g. db.orders['ID'].status == 'refunded'"
+    weight: 0.5
+  - type: llm_rubric
+    rubric: rubrics/conversation-quality.md  # create this file first
+    weight: 0.3
+  - type: efficiency
+    max_turns: 8                             # REPLACE
+    weight: 0.2
+
+tracked_metrics:
+  - n_turns
+  - n_tokens

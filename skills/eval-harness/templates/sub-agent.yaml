@@ -1,0 +1,31 @@
+# Sub-Agent (Orchestrator) Eval Task Template
+# Docs: references/agent-types.md
+task_id: REPLACE_ME
+agent_type: sub-agent
+description: "REPLACE: complex task requiring multiple sub-agents"
+difficulty: hard
+eval_mode: capability
+k: 3
+metric: pass-at-k
+timeout_seconds: 600
+
+orchestrator:
+  prompt: "REPLACE: high-level task for orchestrator agent"
+  spawns_agents: true
+
+expected_outputs:           # REPLACE: files that MUST exist after task completes
+  - file: "REPLACE: output/report.md"
+  - file: "REPLACE: output/results.json"
+
+graders:
+  - type: file_exists
+    files: expected_outputs
+    weight: 0.3
+  - type: final_output
+    rubric: rubrics/REPLACE-quality.md      # create this rubric file
+    weight: 0.7
+
+tracked_metrics:
+  - n_tool_calls
+  - n_tokens
+  - latency_ms

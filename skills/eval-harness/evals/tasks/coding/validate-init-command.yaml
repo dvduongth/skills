@@ -1,0 +1,37 @@
+task_id: validate-init-command
+description: "Verify that /eval-harness init creates the expected directory structure and config file"
+agent_type: coding
+difficulty: easy
+eval_mode: regression
+k: 3
+metric: pass-at-k
+
+environment:
+  reset:
+    - run_command: "rm -rf /tmp/eval_test_workdir && mkdir /tmp/eval_test_workdir"
+  workdir: /tmp/eval_test_workdir
+
+input:
+  prompt: |
+    You are in a fresh project directory at /tmp/eval_test_workdir.
+    Run /eval-harness init to scaffold an eval suite for a coding agent.
+    The suite should support a Python coding agent.
+
+expected_outputs:
+  - file: evals/eval.config.yaml
+  - file: evals/tasks/coding/
+  - file: evals/runs/
+  - file: evals/human-review/pending/
+
+graders:
+  - type: file_exists
+    files:
+      - evals/eval.config.yaml
+      - evals/tasks/
+      - evals/runs/
+      - evals/human-review/pending/
+    weight: 0.5
+
+  - type: llm_rubric
+    rubric: evals/graders/rubrics/init-quality.md
+    weight: 0.5

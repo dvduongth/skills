@@ -1,0 +1,35 @@
+# Coding Agent Eval Task Template
+# Docs: references/agent-types.md
+task_id: REPLACE_ME
+agent_type: coding
+description: "REPLACE: one sentence describing the coding task"
+difficulty: medium          # easy|medium|hard
+eval_mode: capability       # capability|regression
+k: 3
+metric: pass-at-k
+timeout_seconds: 300
+
+environment:
+  type: git_repo
+  setup: "pip install -r requirements.txt"   # REPLACE or remove
+  reset: git_clean                           # runs git clean -fdx before each trial
+
+input:
+  prompt: "REPLACE: exact instructions for the agent"
+  context_files: []                          # REPLACE: files to include as context
+
+graders:
+  - type: unit_tests
+    files: [tests/REPLACE_test_file.py]      # REPLACE
+    weight: 0.5
+  - type: static_analysis
+    tools: [ruff, bandit]                    # REPLACE: ruff|mypy|bandit|eslint|tsc
+    weight: 0.3
+  - type: llm_rubric
+    rubric: rubrics/code-quality.md          # create this file first
+    weight: 0.2
+
+tracked_metrics:
+  - n_turns
+  - n_tool_calls
+  - n_tokens

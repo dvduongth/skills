@@ -1,0 +1,39 @@
+# Computer Use Agent Eval Task Template
+# Docs: references/agent-types.md
+task_id: REPLACE_ME
+agent_type: computer-use
+description: "REPLACE: UI interaction task"
+difficulty: medium
+eval_mode: capability
+k: 3
+metric: pass-at-k
+timeout_seconds: 180
+
+environment:
+  type: browser
+  url: "REPLACE: http://localhost:PORT/path"
+  reset:
+    - clear_cookies
+    - run_sql: "REPLACE or remove: SQL to reset app DB between trials"
+  snapshot_before: true     # captures DB state before trial for state_check
+
+input:
+  prompt: "REPLACE: what the agent should do in the browser"
+  test_data:                # REPLACE: data to use during the task
+    field_name: "value"
+
+graders:
+  - type: dom_check
+    selector: "REPLACE: CSS selector that appears on success"
+    weight: 0.5
+  - type: state_check
+    check: "REPLACE: db.table.count() == snapshot.table_count + 1"
+    weight: 0.4
+  - type: screenshot_verify
+    description: "REPLACE: description of success state visible on screen"
+    weight: 0.1
+
+tracked_metrics:
+  - n_turns
+  - n_tool_calls
+  - latency_ms

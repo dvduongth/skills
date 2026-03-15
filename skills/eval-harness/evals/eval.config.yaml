@@ -1,0 +1,8 @@
+suite_name: "eval-harness Self-Evals"
+db_path: evals/runs/eval.db
+default_model: claude-sonnet-4-6
+grader_model: claude-sonnet-4-6
+default_k: 3
+default_metric: pass-at-k
+default_timeout_seconds: 300
+human_review_notify: true
