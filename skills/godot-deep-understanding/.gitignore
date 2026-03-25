@@ -1,0 +1,23 @@
+# Skill build artifacts
+node_modules/
+dist/
+*.log
+coverage/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary test files
+test-fixtures/
+temp/
+tmp/
+
+# Package build
+*.skill

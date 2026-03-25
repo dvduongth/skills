@@ -1,6 +1,6 @@
-# openclaw-deep-understanding Skill
+# OpenClaw Deep Understanding Skill - Merged Version
 
-**Purpose**: Phân tích sâu codebase OpenClaw để trả lời câu hỏi architecture, generate documentation, và hỗ trợ nghiên cứu phát triển.
+**Purpose**: Phân tích sâu codebase OpenClaw để trả lời câu hỏi architecture, generate documentation, suggest best practices, và hỗ trợ nghiên cứu phát triển dự án tương tự.
 
 **Triggers**:
 - "phân tích openclaw"
@@ -11,7 +11,7 @@
 - "research openclaw"
 - "analyze openclaw"
 
-**Implementation**: `src/skill.ts` (v2.1 — no tool imports, cross-platform)
+**Implementation**: `src/skill.ts` (merged version v3.0)
 
 ---
 
@@ -21,67 +21,179 @@
 interface OpenClawDeepUnderstandingInput {
   /** Câu hỏi bằng tiếng Việt (required) */
   query: string;
-  /** Đường dẫn codebase OpenClaw (optional, default: D:\PROJECT\CCN2\openclaw) */
+  /** Đường dẫn đến codebase OpenClaw (optional, default từ config) */
   contextPath?: string;
-  /** Output file markdown (optional) */
+  /** Nơi lưu báo cáo markdown (optional, nếu rỗng chỉ trả lời chat) */
   outputPath?: string;
-  /** Mức độ: "overview" | "module" | "file" (default: "module") */
+  /** Mức độ phân tích: "overview" | "module" | "file" (default: "module") */
   depth?: "overview" | "module" | "file";
-  /** Tạo Mermaid diagrams? (default: true) */
+  /** Tạo Mermaid diagrams không? (default: true) */
   generateDiagrams?: boolean;
 }
 ```
 
 ---
 
-## Technical Notes
+## Output
 
-- **OpenClaw native skill**: Không import tools — tools là global functions inject bởi runtime
-- **Read-only**: Không sửa source code
-- **Approval**: MEMORY.md cần approval (`openclaw config approve`)
-- **Report writes**: Ngay nếu có `outputPath`
-- **No tests**: Skill không chạy tests (an toàn)
-- **Error handling**: Partial results, tiếng Việt messages
-- **Platform**: Windows only (requires PowerShell); Linux/Mac chưa hỗ trợ
+- **Chat response**: Câu trả lời tiếng Việt dựa trên phân tích codebase + memory
+- **Report file** (nếu `outputPath`): Markdown với:
+  - Architecture overview + diagrams
+  - Modules breakdown
+  - Key files & their roles
+  - Best practices observed
+  - Anti-patterns / risks
+  - Code snippets & references
+- **Memory update**: Ghi nhận insights mới vào MEMORY.md (cần approval)
 
 ---
 
-## Output
+## Features (Merged)
 
-- **Chat response**: Câu trả lời tiếng Việt từ phân tích codebase + memory
-- **Report file** (nếu `outputPath`): Markdown với:
-  - Architecture overview + diagrams
-  - Modules breakdown (sort by LOC)
-  - Key exports/imports
-  - File details (nếu depth=file)
-- **Memory insights**: Prepared for approval (không tự động ghi)
+### ✅ Từ OpenClaw Version (Base):
+- Đơn giản, clean architecture
+- Global tools injection (no imports needed)
+- PowerShell integration (Windows-native)
+- Comprehensive tests
+- Memory caching
+- Export/import parsing
+- LOC calculation
+- Report generation
+
+### ⭐ Từ CCN2 Version (Added):
+- Progress tracking (`emitProgress`)
+- Approval workflow (`requestApproval`)
+- TypeScript interfaces
+- Structured memory update
+- Enhanced error handling
+- Better insights extraction
+
+### 📊 Depth Modes
+
+#### `overview` (10-30s)
+- package.json analysis
+- LOC count
+- Module counts
+- High-level architecture diagram
+
+#### `module` (1-3 phút) *(default)*
+- Per-module breakdown
+- Exports/imports
+- Purpose inference
+- Dependency graphs
+- Modules: gateway, agents, channels, providers, plugins, memory, browser, cron, hooks, etc.
+
+#### `file` (3-10 phút)
+- Tất cả files trong src/
+- File-level metadata
+- Test detection
+- Export/import analysis
+- Dùng cho full audit
 
 ---
 
 ## Examples
 
+### Example 1: Quick Architecture Question
 ```
-"Phân tích OpenClaw gateway architecture, lưu gateway-analysis.md"
-→ depth: module, output: gateway-analysis.md, diagrams: true
+User: "OpenClaw gateway routing logic hoạt động thế nào?"
+Skill:
+1. Progress tracking: "Bắt đầu phân tích..."
+2. Search memory for existing insights
+3. Read src/gateway/server-lanes.ts, src/gateway/server-methods.ts, src/routing/
+4. Analyze code, build answer
+5. Return: "Gateway routing sử dụng lane system để isolate sessions..."
+```
 
-"OpenClaw security model là gì?"
-→ depth: module, focus trên security modules
+### Example 2: Generate Full Report
+```
+User: "Phân tích toàn bộ OpenClaw architecture, lưu vào openclaw-analysis.md"
+Parameters:
+  depth: "module"
+  outputPath: "openclaw-analysis.md"
+  generateDiagrams: true
+→ Tạo báo cáo đầy đủ với Mermaid diagrams
+→ Request approval cho memory update
+→ Update memory với insights mới
+```
 
-"OpenClaw overview"
-→ depth: overview, high-level stats + diagram
+### Example 3: Module Analysis
+```
+User: "Phân tích OpenClaw agents và providers"
+Parameters:
+  depth: "module"
+  generateDiagrams: true
+
+Result:
+✅ Progress tracking cho từng bước
+✅ Tìm modules liên quan
+✅ Chi tiết exports, imports, purpose
+✅ Dependency diagram
+✅ Memory insights với approval workflow
+```
+
+---
+
+## Configuration
+
+### Default Path
+```
+D:\PROJECT\CCN2\openclaw
+```
+
+### Environment Variables
+```bash
+export OPENCLAW_PATH="/path/to/openclaw/repo"
 ```
 
 ---
 
 ## Quality Assurance
 
-- ✅ **Accurate references**: File paths và LOC chính xác
-- ✅ **Vietnamese**: Output toàn bộ tiếng Việt, chuyên nghiệp
-- ✅ **No imports**: Sử dụng global tools, không import ../tools.mjs
-- ✅ **Validation**: query required, depth enum
-- ✅ **Partial results**: Tiếp tục ngay cả khi một phần lỗi
-- ✅ **Approval respect**: Không tự động ghi MEMORY.md
+- ✅ **Read-only**: Không bao giờ sửa source code
+- ✅ **Approval workflow**: Writes require approval
+- ✅ **Accurate diagrams**: Từ thực tế imports/exports
+- ✅ **Proper errors**: Validation, graceful degradation
+- ✅ **Performance**: Parallel reads, streaming previews
+- ✅ **Vietnamese output**: Tất cả responses tiếng Việt
+- ✅ **Progress tracking**: Real-time progress updates
+- ✅ **Test coverage**: Unit tests cho helpers
 
 ---
 
-*Created: 2026-03-16 | Refactored: 2026-03-17 (v2.2 — fixed critical bugs, tests, LOC accuracy)*
+## Testing
+
+```bash
+node --test tests/skill.test.ts
+```
+
+Tests cover:
+- Export extraction
+- Import parsing
+- Purpose inference
+- Diagram generation
+- Memory update preparation
+
+---
+
+## Known Limitations
+
+1. **Windows only**: Requires PowerShell for file enumeration
+2. **Large codebases**: >20k files có thể chậm
+3. **Dynamic imports**: `import()` dynamic không được phát hiện
+4. **JSDoc parsing**: Chỉ first-line comments, không multi-line block
+
+---
+
+## Future Work
+
+- [ ] AST parsing với TypeScript compiler API
+- [ ] Security pattern detection
+- [ ] Performance hotspot identification
+- [ ] Comparison với best practices
+- [ ] Cross-platform support (Linux/Mac)
+
+---
+
+*Skill merged: 2026-03-18 by William Đào 👌*
+*Based on: OpenClaw version (444 lines) + CCN2 features*
