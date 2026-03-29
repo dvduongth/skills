@@ -8,16 +8,17 @@ description: Use when implementing Godot 4.2 UI scenes from CocosStudio referenc
 **Mục tiêu:** Workflow chuẩn để implement Godot scenes từ CocosStudio references — từ phân tích refs đến TDD implementation.
 
 **Stack:** Godot 4.2 + GDScript + GdUnit4 v6.1.3
-**Project:** `D:/PROJECT/CCN2/agent-teams/shared/playtest/godot/`
-**Refs:** `D:/PROJECT/CCN2/agent-teams/references/`
+**Project:** `D:/workspace/CCN2/agent-teams/shared/playtest/godot/`
+**Refs:** `D:/workspace/CCN2/agent-teams/references/`
 
 ---
 
-## 5-Phase Pipeline
+## 6-Phase Pipeline
 
 ```
 Phase 1: Prereq Check → Phase 2: Ref Analysis → Phase 3: Asset Manifest ⛔CHECKPOINT
 → Phase 4: Asset Copy → Phase 5: TDD Scene Implementation (per scene)
+→ Phase 6: Runtime Visual Verification (Rule 6 — MANDATORY)
 ```
 
 ---
@@ -279,5 +280,66 @@ git commit -m "feat(phase1): EHTile scene + TDD tests — tile base + element ov
 
 ---
 
+## Phase 6: Runtime Visual Verification (Rule 6 — MANDATORY)
+
+> **Pipeline Rule 6**: KHÔNG được report PASS chỉ bằng static analysis.
+> PHẢI chạy Godot runtime và capture screenshot. Visual FAIL = smoke FAIL.
+> Xem `agents/agent_playtest/REFERENCE.md` cho full checklist.
+
+### Full Flow — KHÔNG Test Isolated
+
+```
+SceneLoading.tscn → SceneLogin.tscn (2 players) → scene_loading_login.tscn → GameBoard.tscn
+```
+
+**Tại sao?** Mở `GameBoard.tscn` trực tiếp SKIP initialization pipeline (login, session, server handshake). Bugs chỉ xuất hiện khi chạy full flow (token positions phụ thuộc server state sync).
+
+### Godot Binary (thử theo thứ tự)
+1. `GODOT_BIN` env variable
+2. `Editor_Godot/godot.windows.editor.x86_64.console.exe` (portable)
+3. `godot` trong PATH
+
+### Screenshot Capture
+
+```bash
+# Chạy scene + capture screenshot
+<godot_binary> --headless --path "shared/playtest/godot" -s res://tools/capture_screenshot.gd
+```
+
+```gdscript
+# tools/capture_screenshot.gd
+extends SceneTree
+func _init():
+    var viewport = get_root().get_viewport()
+    await get_root().ready
+    await get_tree().process_frame
+    await get_tree().process_frame
+    var img = viewport.get_texture().get_image()
+    img.save_png("res://screenshots/board_screenshot.png")
+    quit()
+```
+
+### Visual Verification Checklist (BLOCKING)
+
+| Check | Pass Criteria |
+|-------|--------------|
+| Board Grid | 41 tiles visible, positions match `tile-grid-mapping.json` (±5px) |
+| HUD Layout | HUDP1 + HUDP2 within viewport [0,1280]x[0,720] |
+| Token Rendering | P1/P2 tokens visible at correct tiles, no missing textures |
+| Viewport | No clipped elements, text readable, 1280x720 |
+| Z-Order | UI > game objects > background |
+
+### Red Flags — Visual
+
+| Situation | Action |
+|-----------|--------|
+| `anchors_preset = 0` + negative offsets | Check element không bị đẩy ngoài viewport |
+| HUD `offset_left < 0` | FAIL — element off-screen (RC từ ticket-014) |
+| Server sends `kind`, client reads `type` | FAIL — field name mismatch (RC từ ticket-014) |
+| Godot không available | Report **BLOCKED** (KHÔNG SKIP/PASS) |
+
+---
+
 *Skill created: 2026-03-27 — từ session godot-ui-reference-guide*
+*Updated: 2026-03-29 — Phase 6: Runtime Visual Verification (Rule 6), repo path fix*
 *Relates to: `using-gdunit4` (test detail), `godot-dev-guide.md` Section 12 (CocosStudio refs)*

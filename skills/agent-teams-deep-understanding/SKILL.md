@@ -2,7 +2,7 @@
 
 **Purpose**: Hiểu sâu hệ thống 9-agent CCN2 — trả lời câu hỏi về kiến trúc pipeline, trạng thái live (tickets/health), và từng agent cụ thể. Không cần đọc file thủ công.
 
-**Version**: v1.0 (2026-03-25)
+**Version**: v1.1 (2026-03-29)
 **Spec**: `agent-teams/docs/superpowers/specs/2026-03-25-agent-teams-deep-understanding-design.md`
 
 ---
@@ -56,8 +56,8 @@ Còn lại (architecture/onboard/general)?
 
 Validate agent_id nếu depth=agent:
 ```
-Valid IDs: agent_leader, agent_gd, agent_dev, agent_dev_server,
-           agent_dev_client, agent_dev_admin, agent_qc1, agent_qc2, agent_playtest
+Valid IDs: agent_leader, agent_gd, agent_dev, agent_dev_bz,
+           agent_dev_godot, agent_dev_admin, agent_qc1, agent_qc2, agent_playtest
 ```
 → Nếu invalid: "Agent '[x]' không tồn tại. Các agent hợp lệ: [list]"
 
@@ -67,12 +67,12 @@ Valid IDs: agent_leader, agent_gd, agent_dev, agent_dev_server,
 
 Đọc song song:
 1. `docs/ARCHITECTURE.md` — lấy pipeline diagram + rules
-2. `README.md` — lấy Mandatory Rules v3.5
+2. `README.md` — lấy Mandatory Rules v3.11.0 (6 rules)
 3. `agents/agent_leader/SOUL.md`
 4. `agents/agent_gd/SOUL.md`
 5. `agents/agent_dev/SOUL.md`
-6. `agents/agent_dev_server/SOUL.md`
-7. `agents/agent_dev_client/SOUL.md`
+6. `agents/agent_dev_bz/SOUL.md`
+7. `agents/agent_dev_godot/SOUL.md`
 8. `agents/agent_dev_admin/SOUL.md`
 9. `agents/agent_qc1/SOUL.md`
 10. `agents/agent_qc2/SOUL.md`
@@ -81,13 +81,14 @@ Valid IDs: agent_leader, agent_gd, agent_dev, agent_dev_server,
 13. `.state/pipeline-health.json`
 14. `shared/knowledge/INDEX.md`
 
-#### depth=agent (~6 reads)
+#### depth=agent (~7 reads)
 
 Đọc song song:
 1. `agents/<target>/SOUL.md`
 2. `agents/<target>/AGENTS.md`
-3. `.state/ticket-tracker.json` (filter theo target agent)
-4. `agents/<target>/memory/` — list files, đọc 1-2 file mới nhất
+3. `agents/<target>/REFERENCE.md` (nếu tồn tại — human-editable hướng dẫn thực thi)
+4. `.state/ticket-tracker.json` (filter theo target agent)
+5. `agents/<target>/memory/` — list files, đọc 1-2 file mới nhất
 
 #### depth=ticket (~8 reads)
 
@@ -106,24 +107,31 @@ Valid IDs: agent_leader, agent_gd, agent_dev, agent_dev_server,
 ```markdown
 # 🤖 Agent-Teams Overview — YYYYMMDD
 
-## Pipeline Architecture (v3.5)
+## Pipeline Architecture (v3.11.0)
 [Mermaid diagram — extract từ ARCHITECTURE.md hoặc render lại]
 
 ## 9 Agents
-| Agent | ID | Vai trò | Tagline |
-|-------|----|---------|---------|
-| 👑 PM | agent_leader | Project Manager | "I don't build. I make sure the right people build the right things." |
-| 🎨 GD | agent_gd | Game Designer | "You're not a chatbot. You're a game designer with taste." |
-| 👷 TechLead | agent_dev | Tech Lead | "You're not a code monkey. You're an engineer who gives a damn." |
-| 🖥️ Server | agent_dev_server | Server Dev (Kotlin/Ktor) | Correctness first, actor integrity |
-| 💻 Client | agent_dev_client | Client Dev (Vanilla JS) | No TypeScript, no imports, no arrow functions |
-| 🛠️ Admin | agent_dev_admin | Admin Dev (optional) | Same standards, smaller scope |
-| 🔍 BlackboxQC | agent_qc1 | QC1 — GDD Validation + test cases | "You don't need to see the code. You see what the player sees." |
-| 🔬 WhiteboxQC | agent_qc2 | QC2 — Code review + unit test | "You're not a rubber stamp. You're the last line of defense." |
-| 🎮 Playtester | agent_playtest | Smoke test + balance + fun | "I play to find where the design breaks." |
+| Agent | ID | Vai trò | REFERENCE.md | Tagline |
+|-------|----|---------|-------------|---------|
+| 👑 PM | agent_leader | Project Manager | — | "I don't build. I make sure the right people build the right things." |
+| 🎨 GD | agent_gd | Game Designer | — | "You're not a chatbot. You're a game designer with taste." |
+| 👷 TechLead | agent_dev | Tech Lead | — | "You're not a code monkey. You're an engineer who gives a damn." |
+| 🖥️ Server | agent_dev_bz | Server Dev (bitzero-kotlin) | — | Correctness first, actor integrity |
+| 💻 Client | agent_dev_godot | Client Dev (Godot 4.x / GDScript) | YES | Scene-first, signal-driven, no placeholder |
+| 🛠️ Admin | agent_dev_admin | Admin Dev (optional) | — | Same standards, smaller scope |
+| 🔍 BlackboxQC | agent_qc1 | QC1 — GDD Validation + test cases | YES | "You don't need to see the code. You see what the player sees." |
+| 🔬 WhiteboxQC | agent_qc2 | QC2 — Code review + unit test | YES | "You're not a rubber stamp. You're the last line of defense." |
+| 🎮 Playtester | agent_playtest | Smoke test + balance + fun | YES | "I play to find where the design breaks." |
 
-## Mandatory Rules (v3.5)
-[Extract 5 rules từ README.md/ARCHITECTURE.md]
+> **REFERENCE.md**: Human-editable file chứa paths, checklists, hướng dẫn thực thi. Agents có REFERENCE.md PHẢI đọc nó khi bắt đầu task. Human có thể thêm hướng dẫn bất kỳ lúc nào.
+
+## Mandatory Rules (v3.11.0)
+[Extract 6 rules từ README.md/ARCHITECTURE.md — bao gồm Rule 6: Mandatory Visual Verification Gate]
+
+### Rule 6 Highlight (v3.11.0)
+agent_playtest PHẢI chạy Godot runtime + capture screenshot trước khi report PASS.
+Full flow bắt buộc: `SceneLoading.tscn → login (2 players) → board` — KHÔNG test isolated.
+Visual check FAIL = smoke FAIL. Godot không available → report BLOCKED (không SKIP/PASS).
 
 ## Active Tickets
 [Parse ticket-tracker.json — hiển thị tickets có status != done/failed/cancelled]
@@ -284,14 +292,31 @@ User: "ticket-20260324-001 đang ở bước nào?"
 
 ## Configuration
 
-**Default repo path**: `D:\PROJECT\CCN2\agent-teams`
+**Default repo path**: `D:\workspace\CCN2\agent-teams`
 
 Override bằng `repoPath` parameter hoặc biến môi trường:
 ```bash
-AGENT_TEAMS_PATH=D:\PROJECT\CCN2\agent-teams
+AGENT_TEAMS_PATH=D:\workspace\CCN2\agent-teams
 ```
 
 ---
 
-*Skill created: 2026-03-25 by William Đào 👌*
+## Cross-Agent Collaboration Context
+
+Khi trả lời về bất kỳ agent nào, nên include context về agents liên quan:
+
+| Khi hỏi về | Cũng nên mention |
+|------------|-----------------|
+| agent_dev_godot | agent_qc2 (code review), agent_playtest (runtime verify) |
+| agent_qc1 | agent_gd (GDD source), agent_playtest (test execution) |
+| agent_qc2 | agent_dev_godot (code author), REFERENCE.md (checklists) |
+| agent_playtest | agent_qc1 (test cases), REFERENCE.md (visual checklist, Godot binary paths) |
+| agent_dev | agent_dev_bz + agent_dev_godot (workers), agent_qc2 (review) |
+
+**Lesson learned (tickets 012-014):** Agents report PASS via static analysis but game UI completely broken. Rule 6 now requires runtime Godot screenshots. REFERENCE.md files guide QC/playtest agents on what to check.
+
+---
+
+*Skill created: 2026-03-25 by William Đào*
+*Updated: 2026-03-29 — v1.1: Rule 6, REFERENCE.md, cross-agent context, repo path fix*
 *Spec: agent-teams/docs/superpowers/specs/2026-03-25-agent-teams-deep-understanding-design.md*

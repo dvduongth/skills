@@ -33,7 +33,8 @@
     "web-artifacts-builder",
     "web-design-guidelines",
     "webapp-testing",
-    "xlsx"
+    "xlsx",
+    "agent-teams-deep-understanding"
   ],
   "skills_to_learn": [],
   "learning_plan": {
@@ -83,10 +84,11 @@
     "brainstorming",
     "web-data-analysis",
     "legacy-project-analyzer",
-    "speckit"
+    "speckit",
+    "agent-teams-deep-understanding"
   ],
   "current_learning": null,
-  "last_updated": "2026-03-14",
+  "last_updated": "2026-03-25",
   "learning_complete": true,
-  "notes": "Đã hoàn thành học 30+ skill. Full workflow từ brainstorm → design → plan → execution → review → finish → verify. Các skill advanced (superpowers, pi-mono-deep-dive-analysis, dispatching-parallel-agents) đã học ngày 2026-03-14. Có thể làm việc thực tế trên CCN2."
+  "notes": "Đã hoàn thành học 30+ skill. Full workflow từ brainstorm → design → plan → execution → review → finish → verify. Các skill advanced (superpowers, pi-mono-deep-dive-analysis, dispatching-parallel-agents) đã học ngày 2026-03-14. Có thể làm việc thực tế trên CCN2. Đã học thêm agent-teams-deep-understanding (2026-03-25)."
 }
