@@ -45,12 +45,12 @@ Dùng bảng này:
 
 | Change Type | Files Cần Update |
 |-------------|-----------------|
-| `add_phase` | ARCHITECTURE.md (pipeline flow), README.md (pipeline diagram), AGENTS.md của agents liên quan |
-| `add_rule` | ARCHITECTURE.md (Mandatory Rules), README.md (Mandatory Rules section) |
-| `add_agent` | README.md (agent table), ARCHITECTURE.md (agent table + flow), IDENTITY.md của agent mới |
-| `add_trigger` | ARCHITECTURE.md (trigger types table), AGENTS.md của receiving agent |
-| `add_gate_logic` | ARCHITECTURE.md (Gates section), AGENTS.md của agent_leader |
-| `modify_rule` | ARCHITECTURE.md, README.md, AGENTS.md của affected agents |
+| `add_phase` | ARCHITECTURE.md (pipeline flow), CHANGELOG.md, README.md (pipeline diagram), AGENTS.md của agents liên quan |
+| `add_rule` | ARCHITECTURE.md (Mandatory Rules), CHANGELOG.md, README.md (Mandatory Rules section) |
+| `add_agent` | README.md (agent table), ARCHITECTURE.md (agent table + flow), CHANGELOG.md, IDENTITY.md của agent mới |
+| `add_trigger` | ARCHITECTURE.md (trigger types table), CHANGELOG.md, AGENTS.md của receiving agent |
+| `add_gate_logic` | ARCHITECTURE.md (Gates section), CHANGELOG.md, AGENTS.md của agent_leader |
+| `modify_rule` | ARCHITECTURE.md, CHANGELOG.md, README.md, AGENTS.md của affected agents |
 
 ### Bước 3 — Load Current Docs
 
@@ -58,6 +58,7 @@ Dùng bảng này:
 Đọc:
   - README.md (version header)
   - docs/ARCHITECTURE.md (version header + affected sections)
+  - docs/CHANGELOG.md (latest version entry — prepend new entry tại đây)
   - agents/<affected_id>/AGENTS.md (cho mỗi agent affected)
   - agents/<affected_id>/HEARTBEAT.md (nếu change ảnh hưởng heartbeat)
 ```
@@ -75,9 +76,15 @@ New version:
 
 **ARCHITECTURE.md:**
 1. Bump version header
-2. Thêm dòng vào changelog section (thay đổi từ vX.Y)
+2. Update "Latest changes" summary (3-5 bullet points ngắn gọn — CHỈ version hiện tại)
 3. Update affected section (pipeline flow / mandatory rules / trigger types / etc.)
 4. Thêm row vào "Bài Học Đã Học" table (nếu change từ incident)
+> **Lưu ý**: Changelog chi tiết đã tách sang `docs/CHANGELOG.md`. ARCHITECTURE.md chỉ giữ summary ngắn của version mới nhất + link đến CHANGELOG.md.
+
+**CHANGELOG.md:**
+1. Prepend new version entry (sau header, trước entry cũ nhất)
+2. Format: `## v<version> (<date>) — <R-number>: <title>`
+3. Mỗi bullet: `- ✅ **<feature>**: <mô tả chi tiết>`
 
 **README.md:**
 1. Bump version header
@@ -121,7 +128,7 @@ Nếu check FAIL → fix ngay trước khi commit.
 ### Bước 7 — Commit
 
 ```bash
-git add README.md docs/ARCHITECTURE.md agents/*/AGENTS.md agents/*/HEARTBEAT.md
+git add README.md docs/ARCHITECTURE.md docs/CHANGELOG.md agents/*/AGENTS.md agents/*/HEARTBEAT.md
 git commit -m "docs(workflow): v<version> — <one-line description>
 
 Changes:
@@ -142,6 +149,7 @@ Báo cáo cho human:
 Files changed: <N>
   - README.md ✅
   - docs/ARCHITECTURE.md ✅
+  - docs/CHANGELOG.md ✅
   - agents/<id>/AGENTS.md ✅ (nếu có)
 Consistency checks: ALL PASS
 Commit: <hash> — <message>
@@ -163,7 +171,8 @@ Breaking: false
 
 **Output:**
 ```
-ARCHITECTURE.md: thêm "Problem Response Protocol" section, update trigger types
+ARCHITECTURE.md: thêm "Problem Response Protocol" section, update trigger types, update latest changes summary
+CHANGELOG.md: prepend v3.4 entry với chi tiết đầy đủ
 README.md: thêm Rule 4 trong Mandatory Rules
 agents/agent_leader/AGENTS.md: thêm Part C — Problem Handling
 agents/agent_leader/HEARTBEAT.md: thêm Bước 2b — Exec Log Scan
