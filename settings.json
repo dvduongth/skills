@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bash \"init.sh\")",
+      "Bash(echo \"EXITCODE=$?\")",
+      "Bash(xargs ls -lh)",
+      "Bash(npx gitnexus *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "WebSearch(*)",
+      "WebFetch(*)",
+      "Read(/**)",
+      "Write(/**)",
+      "Edit(/**)",
+      "Bash(python tools/*.py *)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\CPU60164_LOCAL\\.claude\\skills"
+    ]
+  }
+}
