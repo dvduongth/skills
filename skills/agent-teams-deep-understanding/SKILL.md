@@ -2,7 +2,7 @@
 
 **Purpose**: Hiểu sâu hệ thống 9-agent CCN2 — trả lời câu hỏi về kiến trúc pipeline, trạng thái live (tickets/health), và từng agent cụ thể. Không cần đọc file thủ công.
 
-**Version**: v1.1 (2026-03-29)
+**Version**: v1.2 (2026-04-01) — Migration: shared/playtest/ → shared/godot-client/
 **Spec**: `agent-teams/docs/superpowers/specs/2026-03-25-agent-teams-deep-understanding-design.md`
 
 ---
@@ -117,7 +117,7 @@ Valid IDs: agent_leader, agent_gd, agent_dev, agent_dev_bz,
 | 🎨 GD | agent_gd | Game Designer | — | "You're not a chatbot. You're a game designer with taste." |
 | 👷 TechLead | agent_dev | Tech Lead | — | "You're not a code monkey. You're an engineer who gives a damn." |
 | 🖥️ Server | agent_dev_bz | Server Dev (bitzero-kotlin) | — | Correctness first, actor integrity |
-| 💻 Client | agent_dev_godot | Client Dev (Godot 4.x / GDScript) | YES | Scene-first, signal-driven, no placeholder |
+| 💻 Client | agent_dev_godot | Client Dev (Godot 4.6.1 / GDScript) | YES | Module-based, 3-tier scenes, signal-driven |
 | 🛠️ Admin | agent_dev_admin | Admin Dev (optional) | — | Same standards, smaller scope |
 | 🔍 BlackboxQC | agent_qc1 | QC1 — GDD Validation + test cases | YES | "You don't need to see the code. You see what the player sees." |
 | 🔬 WhiteboxQC | agent_qc2 | QC2 — Code review + unit test | YES | "You're not a rubber stamp. You're the last line of defense." |
@@ -130,8 +130,17 @@ Valid IDs: agent_leader, agent_gd, agent_dev, agent_dev_bz,
 
 ### Rule 6 Highlight (v3.11.0)
 agent_playtest PHẢI chạy Godot runtime + capture screenshot trước khi report PASS.
-Full flow bắt buộc: `SceneLoading.tscn → login (2 players) → board` — KHÔNG test isolated.
+Full flow bắt buộc: `scene_loading.tscn → scene_login.tscn → SceneLobby → SceneTable` — KHÔNG test isolated.
 Visual check FAIL = smoke FAIL. Godot không available → report BLOCKED (không SKIP/PASS).
+
+### Development Environment (v1.2 — 2026-04-01)
+- **Godot project**: `shared/godot-client/client/` (replaces legacy `shared/playtest/godot/`)
+- **Engine**: Godot 4.6.1 (bundled at `shared/godot-client/editor/Godot_v4.6.1-stable_win64.exe`)
+- **Test framework**: GUT (`addons/gut/`)
+- **Architecture**: Module-based (`client/modules/`), 3-tier scenes (Console → Proto → Full)
+- **Autoloads**: 13 organized (core/network/lobby/table/cheat)
+- **MCP**: godot-mcp addon + `D:\PROJECT\CCN2\godot-mcp\` setup guide
+- **Legacy**: `shared/playtest/` deprecated — reference only, will be removed
 
 ## Active Tickets
 [Parse ticket-tracker.json — hiển thị tickets có status != done/failed/cancelled]
@@ -292,12 +301,17 @@ User: "ticket-20260324-001 đang ở bước nào?"
 
 ## Configuration
 
-**Default repo path**: `D:\workspace\CCN2\agent-teams`
+**Default repo path**: `D:\PROJECT\CCN2\agent-teams`
 
 Override bằng `repoPath` parameter hoặc biến môi trường:
 ```bash
-AGENT_TEAMS_PATH=D:\workspace\CCN2\agent-teams
+AGENT_TEAMS_PATH=D:\PROJECT\CCN2\agent-teams
 ```
+
+**Godot client path**: `shared/godot-client/client/` (Godot 4.6.1, module-based)
+**Godot editor path**: `shared/godot-client/editor/Godot_v4.6.1-stable_win64.exe`
+**MCP setup guide**: `D:\PROJECT\CCN2\godot-mcp\`
+**Legacy (deprecated)**: `shared/playtest/` — reference only, will be removed
 
 ---
 
@@ -319,4 +333,5 @@ Khi trả lời về bất kỳ agent nào, nên include context về agents li�
 
 *Skill created: 2026-03-25 by William Đào*
 *Updated: 2026-03-29 — v1.1: Rule 6, REFERENCE.md, cross-agent context, repo path fix*
+*Updated: 2026-04-01 — v1.2: Migration shared/playtest/ → shared/godot-client/, Godot 4.6.1, GUT, module-based*
 *Spec: agent-teams/docs/superpowers/specs/2026-03-25-agent-teams-deep-understanding-design.md*

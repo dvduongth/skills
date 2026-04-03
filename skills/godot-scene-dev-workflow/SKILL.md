@@ -25,13 +25,11 @@ Phase 1: Prereq Check → Phase 2: Ref Analysis → Phase 3: Asset Manifest ⛔C
 
 ## Phase 1: Prerequisite Check
 
-Verify 4 paths trước khi làm bất cứ gì. Nếu thiếu → DỪNG:
+Verify paths trước khi làm bất cứ gì. Nếu thiếu → Escalate:
 
 ```bash
-ls references/Layout_BanChoi_Update2_V3_blue_A.png
-ls references/game_ui/cocostudio/high/game/newboard/
-ls references/game_ui/cocostudio/ui/game/board/
-ls shared/concepts/tile-grid-mapping.json
+ls references/
+ls shared/concepts/
 ```
 
 Đọc knowledge base:
