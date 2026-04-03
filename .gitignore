@@ -6,3 +6,4 @@ core_files/
 memory/
 commands/
 settings.local.json
+settings_tmp.json
