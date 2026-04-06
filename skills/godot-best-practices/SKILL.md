@@ -16,6 +16,8 @@ metadata:
 
 Guide AI agents in writing high-quality GDScript code for Godot 4.x. This skill provides coding standards, architecture patterns, and templates for game development.
 
+> **Syntax enforcement checklist** (breaking changes, static func rules, @onready validation, multi-file protocol): see `/gdscript-syntax-rules`.
+
 ## When to Use This Skill
 
 Use this skill when:

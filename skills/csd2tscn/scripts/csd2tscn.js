@@ -23,6 +23,11 @@ const path = require('path');
 const ASSET_BASE = 'res://assets/';
 const COPY_ASSETS = process.argv.includes('--copy');
 
+// Shared assets root — all copied assets land here regardless of outDir.
+// Defaults to _godotRoot/assets after CLI args are parsed.
+// Override with: --assets-dir <path>
+let _sharedAssetsRoot = '';
+
 // ── Resource registry (per-file) ────────────────────────────────────────────
 let _resId  = 1;
 let _resMap = new Map(); // resPath → { id: string, type: string }
@@ -36,7 +41,8 @@ function getResId(resPath, type = 'Texture2D') {
   if (!resPath) return null;
   if (_resMap.has(resPath)) return _resMap.get(resPath).id;
   const id = String(_resId++);
-  _resMap.set(resPath, { id, type });
+  const uid = 'uid://' + randomBase62(8);
+  _resMap.set(resPath, { id, type, uid });
   return id;
 }
 
@@ -66,9 +72,10 @@ async function processCopyQueue() {
     }
   }
 
+  const total = _copyQueue.length;
   _copyQueue = [];
   if (copied > 0) {
-    console.log(`✅ Copied ${copied}/${_copyQueue.length + copied} asset(s)\n`);
+    console.log(`✅ Copied ${copied}/${total} asset(s)\n`);
   }
 }
 
@@ -274,7 +281,7 @@ function convertSprite(node, parent, rect) {
     const srcPath = resolveCsdAssetPath(node.FileData);
     const assetType = getAssetType(srcPath);
     if (srcPath && assetType === 'texture') {
-      const dstPath = toResPath(cocosPath).replace('res://', '');
+      const dstPath = path.resolve(_sharedAssetsRoot, cocosPath);
       queueAssetCopy(srcPath, dstPath);
     }
   }
@@ -303,7 +310,7 @@ function convertImageView(node, parent, rect) {
     const srcPath = resolveCsdAssetPath(node.FileData);
     const assetType = getAssetType(srcPath);
     if (srcPath && assetType === 'texture') {
-      const dstPath = toResPath(cocosPath).replace('res://', '');
+      const dstPath = path.resolve(_sharedAssetsRoot, cocosPath);
       queueAssetCopy(srcPath, dstPath);
     }
   }
@@ -341,7 +348,7 @@ function convertText(node, parent, rect, accumSX = 1) {
     const srcPath = resolveCsdAssetPath(fontData);
     const assetType = getAssetType(srcPath);
     if (srcPath && assetType === 'font') {
-      const dstPath = toResPath(cocosFontPath).replace('res://', '');
+      const dstPath = path.resolve(_sharedAssetsRoot, cocosFontPath);
       queueAssetCopy(srcPath, dstPath);
     }
   }
@@ -387,7 +394,7 @@ function convertButton(node, parent, rect) {
       const srcPath = resolveCsdAssetPath(node.NormalFileData);
       const assetType = getAssetType(srcPath);
       if (srcPath && assetType === 'texture') {
-        const dstPath = toResPath(node.NormalFileData.Path).replace('res://', '');
+        const dstPath = path.resolve(_sharedAssetsRoot, node.NormalFileData.Path);
         queueAssetCopy(srcPath, dstPath);
       }
     }
@@ -395,7 +402,7 @@ function convertButton(node, parent, rect) {
       const srcPath = resolveCsdAssetPath(node.PressedFileData);
       const assetType = getAssetType(srcPath);
       if (srcPath && assetType === 'texture') {
-        const dstPath = toResPath(node.PressedFileData.Path).replace('res://', '');
+        const dstPath = path.resolve(_sharedAssetsRoot, node.PressedFileData.Path);
         queueAssetCopy(srcPath, dstPath);
       }
     }
@@ -433,7 +440,7 @@ function convertLoadingBar(node, parent, rect) {
     const srcPath = resolveCsdAssetPath(node.ImageFileData);
     const assetType = getAssetType(srcPath);
     if (srcPath && assetType === 'texture') {
-      const dstPath = toResPath(cocosPath).replace('res://', '');
+      const dstPath = path.resolve(_sharedAssetsRoot, cocosPath);
       queueAssetCopy(srcPath, dstPath);
     }
   }
@@ -457,7 +464,7 @@ function convertTextField(node, parent, rect) {
     const srcPath = resolveCsdAssetPath(node.FontResource);
     const assetType = getAssetType(srcPath);
     if (srcPath && assetType === 'font') {
-      const dstPath = toResPath(cocosFontPath).replace('res://', '');
+      const dstPath = path.resolve(_sharedAssetsRoot, cocosFontPath);
       queueAssetCopy(srcPath, dstPath);
     }
   }
@@ -486,22 +493,105 @@ function convertContainer(node, parent, rect) {
 // ── ProjectNodeObjectData — sub-scene instance ───────────────────────────────
 function resolveSubSceneResPath(filePath) {
   // All CSD FileData.Path values use paths relative to the CSD project root.
-  // e.g. "ui/game/board/node_tile.json" with _jsonProjRoot = .../res/studio/json/
-  //   → abs json: .../res/studio/json/ui/game/board/node_tile.json
-  //   → rel to _jsonBatchBase (.../ui/): game/board/node_tile.json
-  //   → abs tscn: _outDir/game/board/node_tile.tscn
-  //   → res://: res://previews/game/board/node_tile.tscn
+  // e.g. "zcsd/features/shop/package_shop_gacha_currency_layout.json"
+  //   → abs json: .../res/zcsd/features/shop/package_shop_gacha_currency_layout.json
+  //   → abs tscn: _outDir/features/shop/package_shop_gacha_currency_layout.tscn
+  //   → res://: res://previews/shop/features/shop/package_shop_gacha_currency_layout.tscn
 
-  if (!filePath || !_jsonProjRoot || !_outDir || !_godotRoot) return null;
+  if (!filePath || !_jsonProjRoot || !_outDir || !_godotRoot) {
+    return null;
+  }
 
-  const absJson = path.resolve(_jsonProjRoot, filePath);
-  const relToBase = path.relative(_jsonBatchBase, absJson);
-  if (relToBase.startsWith('..')) return null; // outside batch base — skip
-
-  const relTscn = relToBase.replace(/\\/g, '/').replace(/\.json$/, '.tscn');
+  // Normalize path: strip zcsd/ prefix for output
+  const normalizedPath = filePath.replace(/^zcsd[\\\/]/, '').replace(/\\/g, '/');
+  const relTscn = normalizedPath.replace(/\.json$/, '.tscn');
   const absTscn = path.resolve(_outDir, relTscn);
+  const exists = fs.existsSync(absTscn);
   const relToGodot = path.relative(_godotRoot, absTscn).replace(/\\/g, '/');
   return 'res://' + relToGodot;
+}
+
+// Two-pass conversion: collect all nested scenes first, convert them, then parent scenes
+let _pendingNestedScenes = new Map(); // filePath → { jsonPath, outPath }
+let _convertedNestedScenes = new Set(); // Track already-converted nested scenes
+
+function collectNestedSceneRefs(node, parentDir) {
+  if (!node) return;
+
+  // Check if this node is a ProjectNodeObjectData
+  if (node.ctype === 'ProjectNodeObjectData' && node.FileData?.Path) {
+    const filePath = node.FileData.Path;
+    const key = filePath.toLowerCase();
+
+    if (!_pendingNestedScenes.has(key)) {
+      // Use same normalization as resolveSubSceneResPath: strip zcsd/ prefix.
+      // This handles files that live outside _jsonBatchBase (e.g. res/zcsd/...)
+      const normalizedPath = filePath.replace(/^zcsd[\\\/]/, '').replace(/\\/g, '/');
+      const relTscn = normalizedPath.replace(/\.json$/, '.tscn');
+      const outPath = path.resolve(_outDir, relTscn);
+
+      // Locate actual JSON source using same search order as convertProjectNode
+      const possibleJsonPaths = [
+        path.resolve(_jsonProjRoot, 'res', normalizedPath),
+        path.resolve(_jsonProjRoot, normalizedPath),
+        path.resolve(_jsonProjRoot, filePath),
+        path.resolve(parentDir, filePath),
+      ];
+      let nestedJsonPath = possibleJsonPaths[0]; // fallback even if not found
+      for (const p of possibleJsonPaths) {
+        if (fs.existsSync(p)) { nestedJsonPath = p; break; }
+      }
+
+      _pendingNestedScenes.set(key, { jsonPath: nestedJsonPath, outPath, filePath });
+    }
+  }
+
+  // Recurse into children
+  for (const child of (node.Children ?? [])) {
+    collectNestedSceneRefs(child, parentDir);
+  }
+}
+
+async function processNestedScenesFirst(jsonDir) {
+  // First pass: collect all nested scene references from all JSON files
+  console.log('\n🔍 Scanning for nested scenes...');
+
+  function scanForNested(dir, relBase = '') {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        scanForNested(full, relBase ? `${relBase}/${entry.name}` : entry.name);
+      } else if (entry.name.endsWith('.json')) {
+        try {
+          const json = JSON.parse(fs.readFileSync(full, 'utf8'));
+          const content = json.Content?.ObjectData || json.Content?.Content?.ObjectData;
+          if (content?.Children) {
+            collectNestedSceneRefs(content, dir);
+          }
+        } catch (e) {
+          // Skip invalid JSON
+        }
+      }
+    }
+  }
+
+  scanForNested(jsonDir);
+
+  console.log(`   Found ${_pendingNestedScenes.size} nested scene(s)`);
+
+  // Convert nested scenes first (in dependency order)
+  const sorted = Array.from(_pendingNestedScenes.values()).sort((a, b) => {
+    return a.outPath.localeCompare(b.outPath);
+  });
+
+  for (const scene of sorted) {
+    const key = scene.filePath.toLowerCase();
+    if (_convertedNestedScenes.has(key)) continue;
+
+    console.log(`   🔄 Converting nested: ${scene.filePath}`);
+    await convertNestedScene(scene.jsonPath, path.relative(_outDir, scene.outPath));
+    _convertedNestedScenes.add(key);
+  }
 }
 
 // Recursive conversion for nested CSD scenes
@@ -542,7 +632,7 @@ function collectNestedAssets(node, parentDir) {
     const data = node[field];
     if (data?.Path) {
       const srcPath = path.resolve(parentDir, data.Path);
-      const dstPath = path.resolve(_outDir, toResPath(data.Path).replace('res://', ''));
+      const dstPath = path.resolve(_sharedAssetsRoot, data.Path);
       if (fs.existsSync(srcPath)) {
         queueAssetCopy(srcPath, dstPath);
       }
@@ -565,30 +655,45 @@ async function convertProjectNode(node, parent, rect) {
     return;
   }
 
-  // Check if nested scene tscn exists (already converted)
-  if (fs.existsSync(resPath.replace('res://', ''))) {
+  const absTscnPath = path.resolve(_godotRoot || _outDir, resPath.replace('res://', ''));
+  const key = filePath.toLowerCase();
+
+  // Check if nested scene tscn exists (already converted in first pass)
+  if (fs.existsSync(absTscnPath) || _convertedNestedScenes.has(key)) {
     const id = getResId(resPath, 'PackedScene');
     emitInstanceNode(node.Name, parent, id, layoutProps(rect, node));
-  } else if (COPY_ASSETS) {
-    // Convert nested scene recursively
-    const nestedJsonPath = resolveCsdAssetPath(node.FileData);
-    if (nestedJsonPath && fs.existsSync(nestedJsonPath)) {
-      // Determine relative output path
-      const filePathRel = filePath.replace(/^ui\//, '');
-      const nestedOutPath = path.join(path.dirname(resPath.replace('res://', '')), filePathRel.replace(/\.json$/, '.tscn'));
+    return;
+  }
 
-      console.log(`   🔄 Converting nested scene: ${filePath} → ${nestedOutPath}`);
-      await convertNestedScene(nestedJsonPath, path.relative(_outDir, nestedOutPath));
+  // Check if nested JSON source exists
+  const normalizedPath = filePath.replace(/^zcsd[\\\/]/, '').replace(/\\/g, '/');
+  const possibleJsonPaths = [
+    path.resolve(_jsonProjRoot, 'res', normalizedPath),
+    path.resolve(_jsonProjRoot, normalizedPath),
+  ];
 
-      // Now that nested scene is converted, reference it
-      const id = getResId(resPath, 'PackedScene');
-      emitInstanceNode(node.Name, parent, id, layoutProps(rect, node));
-    } else {
-      // Fallback to container
-      convertContainer(node, parent, rect);
+  let nestedJsonPath = null;
+  for (const p of possibleJsonPaths) {
+    if (fs.existsSync(p)) {
+      nestedJsonPath = p;
+      break;
     }
+  }
+
+  if (nestedJsonPath && COPY_ASSETS) {
+    // Convert nested scene recursively
+    const relTscn = normalizedPath.replace(/\.json$/, '.tscn');
+    const nestedOutPath = path.resolve(_outDir, relTscn);
+
+    console.log(`   🔄 Converting nested scene: ${filePath} → ${nestedOutPath}`);
+    await convertNestedScene(nestedJsonPath, path.relative(_outDir, nestedOutPath));
+    _convertedNestedScenes.add(key);
+
+    // Now that nested scene is converted, reference it
+    const id = getResId(resPath, 'PackedScene');
+    emitInstanceNode(node.Name, parent, id, layoutProps(rect, node));
   } else {
-    // Fallback to container if not copying assets
+    // Fallback to container if not copying assets or source doesn't exist
     convertContainer(node, parent, rect);
   }
 }
@@ -650,10 +755,15 @@ async function convert(jsonPath, outPath) {
     processNode(child, '.', sceneH);
   }
 
-  // Build ext_resource section
+  // Build ext_resource section with proper UID format
   const extLines = [];
-  for (const [resPath, { id, type }] of _resMap.entries()) {
-    extLines.push(`[ext_resource type="${type}" path="${resPath}" id="${id}"]`);
+  for (const [resPath, { id, type, uid }] of _resMap.entries()) {
+    // For PackedScene (nested scenes), use UID format; for others use path format
+    if (type === 'PackedScene' && uid) {
+      extLines.push(`[ext_resource type="${type}" uid="${uid}" path="${resPath}" id="${id}"]`);
+    } else {
+      extLines.push(`[ext_resource type="${type}" path="${resPath}" id="${id}"]`);
+    }
   }
 
   const uid       = 'uid://' + randomBase62(12);
@@ -699,7 +809,11 @@ async function main() {
   for (let i = 0; i < rawArgs.length; i++) {
     if (rawArgs[i] === '--batch') {
       batchMode = true;
-    } else if (rawArgs[i] !== '--copy') {
+    } else if (rawArgs[i] === '--copy') {
+      // handled via process.argv.includes above
+    } else if (rawArgs[i] === '--assets-dir') {
+      _sharedAssetsRoot = path.resolve(rawArgs[++i]);
+    } else {
       args.push(rawArgs[i]);
     }
   }
@@ -714,14 +828,32 @@ async function main() {
 
     // Set context for ProjectNodeObjectData resolution
     _jsonBatchBase = path.resolve(jsonDir);
-    _jsonProjRoot  = path.resolve(jsonDir, '..');  // CSD project root = parent of ui/ dir
+    // CSD project root: go up to find 'zcsd' or similar base folder
+    let projRoot = path.resolve(jsonDir, '..');
+    let loopCount = 0;
+    while (projRoot && path.basename(projRoot) !== 'zcsd' && path.basename(projRoot) !== 'res') {
+      const parent = path.dirname(projRoot);
+      if (parent === projRoot) break;
+      projRoot = parent;
+      loopCount++;
+      if (loopCount > 10) break;
+    }
+    _jsonProjRoot = projRoot;
     _outDir        = path.resolve(outDir);
     _godotRoot     = findGodotRoot(_outDir);
     if (!_godotRoot) {
-      console.warn('⚠  Could not find project.godot from', _outDir, '— sub-scene refs may be broken');
+      console.warn('⚠  Could not find project.godot from', outDir, '— sub-scene refs may be broken');
     } else {
-      console.log(`   Godot root: ${_godotRoot}`);
+      console.log('   Godot root:', _godotRoot);
+      console.log('   CSD proj root:', _jsonProjRoot);
     }
+    if (!_sharedAssetsRoot) {
+      _sharedAssetsRoot = path.resolve(_godotRoot || _outDir, 'assets');
+    }
+    console.log('   Assets root:', _sharedAssetsRoot);
+
+    // Two-pass: First convert all nested scenes, then parent scenes
+    await processNestedScenesFirst(jsonDir);
 
     async function walkJsonDir(dir, outBase, relBase = '') {
       for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -759,15 +891,19 @@ async function main() {
     const relDepth = path.relative(ctx.batchBase, path.resolve(args[0])).split(/[\\/]/).length;
     _outDir        = path.resolve(args[1], '../'.repeat(relDepth));
     _godotRoot     = findGodotRoot(path.resolve(path.dirname(args[1])));
+    if (!_sharedAssetsRoot) {
+      _sharedAssetsRoot = path.resolve(_godotRoot || _outDir, 'assets');
+    }
     await convert(args[0], args[1]);
 
   } else {
     console.error('Usage:');
     console.error('  node tools/csd2tscn.js <input.json> <output.tscn>');
-    console.error('  node tools/csd2tscn.js --batch [--copy] <json_dir> <out_dir>');
+    console.error('  node tools/csd2tscn.js --batch [--copy] [--assets-dir <path>] <json_dir> <out_dir>');
     console.error('');
     console.error('Options:');
-    console.error('  --copy    Auto-copy resource files (images, fonts, spritesheets)');
+    console.error('  --copy              Auto-copy resource files (images, fonts, spritesheets)');
+    console.error('  --assets-dir <path> Shared assets destination (default: <godot_root>/assets)');
     process.exit(1);
   }
 }
