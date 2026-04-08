@@ -1,4 +1,4 @@
-# Godot Client Workflow — CCN2 Development Automation Skill
+﻿# Godot Client Workflow — CCN2 Development Automation Skill
 
 **Version**: v1.0.0
 **Created**: 2026-04-01
@@ -25,8 +25,8 @@ Invoke skill này khi:
 | Component | Path |
 |-----------|------|
 | **Godot project** | `D:\PROJECT\CCN2\agent-teams\shared\godot-client\client-ai-godot\` |
-| **Godot editor** | `D:\PROJECT\CCN2\agent-teams\shared\godot-client\client-ai-godot\editor\Godot_v4.6.1-stable_win64.exe` |
-| **Console binary** | `D:\PROJECT\CCN2\agent-teams\shared\godot-client\client-ai-godot\editor\Godot_v4.6.1-stable_win64_console.exe` |
+| **Godot editor** | `D:\PROJECT\CCN2\agent-teams\shared\godot-client\editor\Godot_v4.6.1-stable_win64.exe` |
+| **Console binary** | `D:\PROJECT\CCN2\agent-teams\shared\godot-client\editor\Godot_v4.6.1-stable_win64_console.exe` |
 | **Server** | `D:\PROJECT\CCN2\agent-teams\shared\godot-client\server\` |
 | **MCP setup** | `D:\PROJECT\CCN2\godot-mcp\` |
 | **Constitution** | `D:\PROJECT\CCN2\agent-teams\shared\godot-client\CLAUDE.md` |
@@ -35,22 +35,22 @@ Invoke skill này khi:
 
 ```bash
 # Open editor
-editor/Godot_v4.6.1-stable_win64.exe -e
+../editor/Godot_v4.6.1-stable_win64.exe -e
 
 # Import project (first time)
-editor/Godot_v4.6.1-stable_win64_console.exe --import --headless
+../editor/Godot_v4.6.1-stable_win64_console.exe --import --headless
 
 # Run client
-editor/Godot_v4.6.1-stable_win64.exe
+../editor/Godot_v4.6.1-stable_win64.exe
 
 # Headless mode
-editor/Godot_v4.6.1-stable_win64_console.exe --headless
+../editor/Godot_v4.6.1-stable_win64_console.exe --headless
 
 # GUT tests
-editor/Godot_v4.6.1-stable_win64_console.exe --headless -s addons/gut/gut_cmdln.gd
+../editor/Godot_v4.6.1-stable_win64_console.exe --headless -s addons/gut/gut_cmdln.gd
 
 # Specific test
-editor/Godot_v4.6.1-stable_win64_console.exe --headless -s addons/gut/gut_cmdln.gd -gtest=res://tests/<file>.gd
+../editor/Godot_v4.6.1-stable_win64_console.exe --headless -s addons/gut/gut_cmdln.gd -gtest=res://tests/<file>.gd
 ```
 
 ### 1.3 MCP Setup (Godot MCP)
@@ -76,15 +76,14 @@ godot-mcp status
 }
 ```
 
-**Plugin**: Đã có sẵn tại `client-ai-godot/addons/godot-mcp/` — chỉ cần enable trong Project Settings → Plugins.
+**Plugin**: Đã có sẵn tại `client/addons/godot-mcp/` — chỉ cần enable trong Project Settings → Plugins.
 
 ### 1.4 Plugins Available
 
 | Plugin | Path | Purpose |
 |--------|------|---------|
-| **GUT** | `client-ai-godot/addons/gut/` | Unit testing framework |
-| **godot-mcp** | `client-ai-godot/addons/godot-mcp/` | MCP integration (Claude ↔ Godot Editor) |
-| **mserialize** | `client-ai-godot/addons/mserialize/` | Packet serialization |
+| **GUT** | `client/addons/gut/` | Unit testing framework |
+| **godot-mcp** | `client/addons/godot-mcp/` | MCP integration (Claude ↔ Godot Editor) |
 
 ---
 
@@ -94,21 +93,14 @@ godot-mcp status
 
 ```
 shared/godot-client/
-├── client-ai-godot/                  # Godot 4.6 project (ACTIVE)
+├── client/                           # Godot 4.6 project
 │   ├── project.godot                 # Config: 1136x640, GL Compatibility
-│   ├── editor/                       # Bundled Godot 4.6.1 editor (project-local)
-│   ├── autoloads/                    # Domain-organized autoloads
-│   │   ├── core/                     # Core services
-│   │   ├── network/                  # NetworkService
+│   ├── autoloads/                    # 13 autoloads (5 domains)
+│   │   ├── core/                     # Log, AppConfig, SceneManager, AnimStyle, LocaleService, ToastService, PopupService, DebugInspector
+│   │   ├── network/                  # NetworkService, ReconnectService
 │   │   ├── lobby/                    # LobbyService
-│   │   ├── gacha/                    # Gacha autoloads
-│   │   ├── shop/                     # Shop autoloads
-│   │   ├── mail/                     # Mail autoloads
-│   │   ├── ranking/                  # Ranking autoloads
-│   │   ├── daily_reward/             # Daily reward autoloads
-│   │   ├── beginner_quest/           # Beginner quest autoloads
-│   │   ├── payment/                  # Payment autoloads
-│   │   └── tracking/                 # Analytics/tracking
+│   │   ├── table/                    # GameService, GameLog
+│   │   └── cheat/                    # ThumbCheat
 │   ├── modules/                      # Feature modules (YOUR WRITE ZONE)
 │   │   ├── loading/                  # Scene loading, initialization
 │   │   ├── login/                    # User authentication
@@ -118,16 +110,11 @@ shared/godot-client/
 │   │   │   ├── scenes/proto/         # Layout prototypes
 │   │   │   ├── scenes/full/          # Production scenes
 │   │   │   └── scripts/              # Feature scripts
-│   │   ├── shop/                     # Shop module
-│   │   ├── gacha/                    # Gacha module
-│   │   ├── ranking/                  # Ranking module
-│   │   ├── mail/                     # Mail module
-│   │   ├── debug/                    # ShowcaseOverlay, debug tools
-│   │   └── ...                       # Other feature modules
+│   │   └── core/debug/              # ShowcaseOverlay, debug tools
+│   ├── tests/                        # GUT test files
 │   ├── assets/                       # Art, textures, fonts, audio
-│   └── addons/                       # Plugins (gut, godot-mcp, mserialize)
-├── legacy-client/                    # DEPRECATED — reference only
-├── editor/                           # Shared Godot 4.6.1 editor binaries
+│   └── addons/                       # Plugins (gut, godot-mcp)
+├── editor/                           # Bundled Godot 4.6.1 editor
 ├── server/                           # Backend (Docker Compose)
 ├── CLAUDE.md                         # Constitution — ALWAYS/NEVER rules
 ├── AGENTS.md                         # Agent coordination
@@ -183,31 +170,37 @@ NEW FEATURE? → Always start with Console (logic first)
               → Add Full (art + polish)
 ```
 
-**Console = Source of Truth**: `TableConsole.tscn` contains all signals, state machines, game logic. Proto and Full INHERIT from Console.
+**LogicCore = Source of Truth**: `{Module}LogicCore.gd` (extends Node) chứa state machine, signals, network handlers. **Không có inheritance giữa tiers** — Console/Proto/Full đều standalone.
 
-### 3.4 Scene Inheritance Pattern
+### 3.4 Scene Composition Pattern (3-Tier Composition)
 
 ```gdscript
-# SceneTableConsole.tscn — Tier 1 (logic source of truth)
-# script: scene_table_console.gd
-signal card_played(card_data: CardData, player_id: int)
-signal turn_ended(player_id: int)
-# ... pure game logic, no visuals
+# {Module}LogicCore.gd — SOURCE OF TRUTH (extends Node, shared by all tiers)
+class_name {Module}LogicCore
+extends Node
+signal state_changed(old: int, new: int)
+signal action_completed(result: Dictionary)
+# ... logic, network, state machine — NO UI references
 
-# SceneTablePrototype.tscn — Tier 2 (inherits Console)
-# script: scene_table_prototype.gd (extends SceneTableConsole)
-# Adds: ColorRect board, Label tokens, basic HUD shapes
+# Scene{Module}Console.tscn — Tier 1 (debug, standalone)
+# script: scene_{module}_console.gd (extends Control — NOT LogicCore)
+# Creates LogicCore directly: logic_core = {Module}LogicCore.new(); add_child(logic_core)
+# Wires signals → debug Labels
 
-# SceneTableFull.tscn — Tier 3 (inherits Prototype)
-# script: scene_table_full.gd (extends SceneTablePrototype)
-# Replaces: art sprites, AnimationPlayer tracks, VFX, audio
+# Scene{Module}Proto.tscn — Tier 2 (placeholder art, standalone)
+# script: scene_{module}_proto.gd (extends Control — NOT Console)
+# @onready var logic_core: {Module}LogicCore = $LogicCore
+# _ready(): logic_core.setup() → _build_ui() → {Module}ProtoSignalWiring.connect_all(self)
+# UI built in code: ColorRect + Label
+
+# Scene{Module}Full.tscn — Tier 3 (production art, standalone)
+# script: scene_{module}_full.gd (extends Control — NOT Proto)
+# @onready var logic_core: {Module}LogicCore = $LogicCore
+# @onready refs from .tscn (TextureButton, art assets)
+# _ready(): logic_core.setup() → _init_ui() → {Module}FullSignalWiring.connect_all(self)
 ```
 
-> **GDScript 4 extends rule:** NEVER use `extends preload("...")`. Always use `extends ClassName` where ClassName is the `class_name` declared in the parent script.
-> - ✅ `extends SceneTableConsole`
-> - ❌ `extends preload("res://modules/table/scenes/console/scene_table_console.gd")`
->
-> `preload()` in `extends` is GDScript 3 syntax and causes a **parse error** in Godot 4.
+> Canonical reference implementation: `modules/login/` — xem `login_logic_core.gd`, `scene_login_proto.gd`, `scene_login_full.gd`.
 
 ---
 
@@ -350,22 +343,24 @@ func _test_selected() -> void:
 ### 6.1 Test Location
 
 ```
-client-ai-godot/modules/<module>/tests/
-├── *.test.gd       # Unit tests (co-located with module)
+client/tests/
+├── <module>/           # Tests organized by module
+│   ├── *.test.gd       # Unit tests
+│   └── ...
 └── ...
 ```
 
-### 6.2 Test Commands (run from `client-ai-godot/`)
+### 6.2 Test Commands
 
 ```bash
 # All tests
-editor/Godot_v4.6.1-stable_win64_console.exe --headless -s addons/gut/gut_cmdln.gd
+../editor/Godot_v4.6.1-stable_win64_console.exe --headless -s addons/gut/gut_cmdln.gd
 
 # Specific test file
-editor/Godot_v4.6.1-stable_win64_console.exe --headless -s addons/gut/gut_cmdln.gd -gtest=res://modules/<module>/tests/<file>.gd
+../editor/Godot_v4.6.1-stable_win64_console.exe --headless -s addons/gut/gut_cmdln.gd -gtest=res://tests/<file>.gd
 
 # Specific test method
-editor/Godot_v4.6.1-stable_win64_console.exe --headless -s addons/gut/gut_cmdln.gd -gtest=res://modules/<module>/tests/<file>.gd -gunit_test_name=test_method_name
+../editor/Godot_v4.6.1-stable_win64_console.exe --headless -s addons/gut/gut_cmdln.gd -gtest=res://tests/<file>.gd -gunit_test_name=test_method_name
 ```
 
 ### 6.3 Test-First Workflow (TDD)
@@ -390,7 +385,7 @@ Orchestrator → Analyzer → Planner → Implementer → Reviewer → Tester �
 
 | agent-teams Agent | godot-client Phase | Relationship |
 |-------------------|-------------------|--------------|
-| agent_dev_godot | Implementer | Writes code to `client-ai-godot/modules/` |
+| agent_dev_godot | Implementer | Writes code to `client/modules/` |
 | agent_qc2 | Reviewer | Code review + quality gate |
 | agent_playtest | Tester | Smoke test + visual verification |
 | agent_qc1 | Planner (indirect) | Test cases feed into Tester |
@@ -411,16 +406,15 @@ Step 2: Read godot-client CLAUDE.md (conventions)
   └── shared/godot-client/CLAUDE.md
 
 Step 3: Create module folder
-  └── client-ai-godot/modules/<feature>/
+  └── client/modules/<feature>/
       ├── scenes/console/   ← Start here (logic first)
       ├── scenes/proto/
       ├── scenes/full/
-      ├── tests/
       └── scripts/
 
 Step 4: TDD — Write Console tier
-  ├── Write test: modules/<feature>/tests/scene_<name>_console.test.gd
-  ├── Run test (RED): editor/Godot_v4.6.1-stable_win64_console.exe --headless -s addons/gut/gut_cmdln.gd
+  ├── Write test: tests/<feature>/scene_<name>_console.test.gd
+  ├── Run test (RED): ../editor/Godot_v4.6.1-stable_win64_console.exe --headless -s addons/gut/gut_cmdln.gd
   ├── Implement: modules/<feature>/scenes/console/ + scripts/
   └── Run test (GREEN)
 
@@ -509,12 +503,10 @@ docker-compose up -d
 | Old Path | New Path |
 |----------|----------|
 | `shared/playtest/godot/src/` | `shared/godot-client/client-ai-godot/modules/` |
-| `shared/playtest/godot/tests/` | `shared/godot-client/client-ai-godot/modules/<module>/tests/` |
+| `shared/playtest/godot/tests/` | `shared/godot-client/client-ai-godot/tests/` |
 | `shared/playtest/server/` | `shared/godot-client/server/` |
 | `shared/playtest/godot/CONVENTIONS.md` | `shared/godot-client/CLAUDE.md` |
-| `Editor_Godot/godot...exe` | `client-ai-godot/editor/Godot_v4.6.1-stable_win64.exe` |
-| `shared/godot-client/client/` | `shared/godot-client/client-ai-godot/` |
-| `shared/godot-client/legacy-client/` | DEPRECATED — reference only |
+| `Editor_Godot/godot...exe` | `../editor/Godot_v4.6.1-stable_win64.exe` |
 
 ---
 
