@@ -157,8 +157,8 @@ Headless testable     Screenshot testable     Full visual verification
 | Tier | Folder | Content | Testing |
 |------|--------|---------|---------|
 | **Console** | `scenes/console/` | Pure logic — signals, state machine, game rules | Headless GUT tests |
-| **Proto** | `scenes/proto/` | Inherits Console + adds layout (ColorRect, Labels, basic shapes) | Screenshot comparison |
-| **Full** | `scenes/full/` | Inherits Proto + replaces shapes with real art, animations, VFX | Full visual verification + Rule 6 |
+| **Proto** | `scenes/proto/` | Composed of Console + adds layout (ColorRect, Labels, basic shapes) | Screenshot comparison |
+| **Full** | `scenes/full/` | Composed of Proto + replaces shapes with real art, animations, VFX | Full visual verification + Rule 6 |
 
 ### 3.3 When to Use Each Tier
 
@@ -419,13 +419,13 @@ Step 4: TDD — Write Console tier
   └── Run test (GREEN)
 
 Step 5: Add Proto tier
-  ├── Inherit Console scene
+  ├── Compose Console scene
   ├── Add ColorRect + Label layout
   ├── Add .showcase.gd for visual testing
   └── F6 to test standalone
 
 Step 6: Add Full tier
-  ├── Inherit Proto scene
+  ├── Compose Proto scene
   ├── Replace shapes with art
   ├── Add AnimStyle animations
   ├── Add I18N strings
