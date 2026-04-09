@@ -92,15 +92,16 @@ function mapNodeType(node) {
   return 'Control'; // fallback
 }
 
-function calcOffsets(node, design) {
-  const sx = design ? (design.scale_x || 1) : 1;
-  const sy = design ? (design.scale_y || 1) : 1;
+// Bounds in scene JSON are already in game-space coordinates (design.width × design.height).
+// scale_x/scale_y in the JSON describes the PSD→game conversion done by the exporter,
+// not a transform we need to re-apply here.
+function calcOffsets(node) {
   const b = node.bounds;
   return {
-    left:   Math.round(b.left   * sx * 100) / 100,
-    top:    Math.round(b.top    * sy * 100) / 100,
-    right:  Math.round(b.right  * sx * 100) / 100,
-    bottom: Math.round(b.bottom * sy * 100) / 100,
+    left:   Math.round(b.left   * 100) / 100,
+    top:    Math.round(b.top    * 100) / 100,
+    right:  Math.round(b.right  * 100) / 100,
+    bottom: Math.round(b.bottom * 100) / 100,
   };
 }
 
@@ -131,9 +132,7 @@ function randomUid() {
 function generateTscn(json, slug, assetsResPath) {
   if (!json.design) console.warn(`Warning: missing "design" block in JSON, using scale 1.0`);
   const design = json.design || {};
-  const scaleX = design.scale_x || 1;
-  const scaleY = design.scale_y || 1;
-  const w = design.width  || 1136;
+  const w = design.width  || 1368;
   const h = design.height || 640;
 
   const reg = createRegistry();
@@ -161,7 +160,7 @@ function generateTscn(json, slug, assetsResPath) {
       seenNames.add(nodeName);
 
       const godotType = mapNodeType(n);
-      const offsets   = calcOffsets(n, { scale_x: scaleX, scale_y: scaleY });
+      const offsets   = calcOffsets(n);
 
       nodeLines.push('');
       nodeLines.push(`[node name="${nodeName}" type="${godotType}" parent="${parentPath}"]`);
@@ -180,6 +179,13 @@ function generateTscn(json, slug, assetsResPath) {
         const resPath = assetsResPath + n.image;
         const id = reg.getOrAdd(resPath);
         nodeLines.push(`texture = ExtResource("${id}")`);
+      }
+
+      if (godotType === 'Label' && n.text) {
+        const content = typeof n.text === 'object' ? (n.text.content || '') : String(n.text);
+        if (content) {
+          nodeLines.push(`text = "${content.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`);
+        }
       }
 
       if (n.children && n.children.length) {
