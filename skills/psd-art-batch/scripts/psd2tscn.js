@@ -34,7 +34,8 @@ function parseArgs(argv) {
       case '--dry-run':  args.dryRun  = true;            break;
       case '--verbose':  args.verbose = true;            break;
       case '--help':     printHelp(); process.exit(0);   break;
-      case '--assets-dir': args.assetsDir = argv[++i];  break;
+      case '--assets-dir':     args.assetsDir    = argv[++i]; break;
+      case '--assets-res-path': args.assetsResPath = argv[++i]; break;
       default:
         if (!argv[i].startsWith('--')) {
           if (!args.src) args.src = argv[i];
@@ -258,7 +259,8 @@ function convertFile(jsonPath, outTscn, args) {
   const srcDir     = path.dirname(jsonPath);
   const slug       = slugify(path.basename(srcDir));
   const moduleName = slugify(path.basename(path.dirname(srcDir)));
-  const assetsResPath = `res://assets/high/${moduleName}/${slug}/`;
+  // Allow override via --assets-res-path; fallback to convention-based path
+  const assetsResPath = args.assetsResPath || `res://assets/high/${moduleName}/${slug}/`;
 
   if (args.verbose) console.log(`  Converting: ${path.basename(jsonPath)} → ${slug}`);
 
@@ -277,7 +279,8 @@ function convertFile(jsonPath, outTscn, args) {
     const imagesDir = path.join(srcDir, 'images');
     let assetsDestDir;
     if (args.assetsDir) {
-      assetsDestDir = path.join(args.assetsDir, slug);
+      // Use assetsDir as-is — caller specifies the exact destination folder
+      assetsDestDir = args.assetsDir;
     } else {
       const parts = outTscn.split(/[/\\]/);
       const previewsIdx = parts.findIndex(p => p === 'previews');
