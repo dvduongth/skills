@@ -255,9 +255,10 @@ function convertFile(jsonPath, outTscn, args) {
     throw new Error(`Invalid format: missing scene_tree in ${jsonPath}`);
   }
 
-  const srcDir  = path.dirname(jsonPath);
-  const slug    = slugify(path.basename(srcDir));
-  const assetsResPath = `res://assets/ui/images/${slug}/`;
+  const srcDir     = path.dirname(jsonPath);
+  const slug       = slugify(path.basename(srcDir));
+  const moduleName = slugify(path.basename(path.dirname(srcDir)));
+  const assetsResPath = `res://assets/high/${moduleName}/${slug}/`;
 
   if (args.verbose) console.log(`  Converting: ${path.basename(jsonPath)} → ${slug}`);
 
