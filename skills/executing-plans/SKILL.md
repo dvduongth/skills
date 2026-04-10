@@ -67,4 +67,7 @@ After all tasks complete and verified:
 **Required workflow skills:**
 - **superpowers:using-git-worktrees** - REQUIRED: Set up isolated workspace before starting
 - **superpowers:writing-plans** - Creates the plan this skill executes
+- **superpowers:plan-verification** - Verifies plan assumptions before execution (invoked by writing-plans)
 - **superpowers:finishing-a-development-branch** - Complete development after all tasks
+
+> **Note:** Plans should come from `writing-plans`, which automatically invokes `plan-verification` before handoff. If executing a plan from another source, verify assumptions manually first.

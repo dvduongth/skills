@@ -265,8 +265,11 @@ Done!
 **Required workflow skills:**
 - **superpowers:using-git-worktrees** - REQUIRED: Set up isolated workspace before starting
 - **superpowers:writing-plans** - Creates the plan this skill executes
+- **superpowers:plan-verification** - Verifies plan assumptions before execution (invoked by writing-plans)
 - **superpowers:requesting-code-review** - Code review template for reviewer subagents
 - **superpowers:finishing-a-development-branch** - Complete development after all tasks
+
+> **Note:** Plans should come from `writing-plans`, which automatically invokes `plan-verification` before handoff. If executing a plan from another source, verify assumptions manually first.
 
 **Subagents should use:**
 - **superpowers:test-driven-development** - Subagents follow TDD for each task

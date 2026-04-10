@@ -39,7 +39,7 @@ Even 1% chance → invoke skill to check
 
 ---
 
-## 14 Skills Library
+## 15 Skills Library
 
 ### Process Skills (HOW - Priority 1)
 
@@ -49,6 +49,7 @@ Even 1% chance → invoke skill to check
 | **systematic-debugging** | 4-phase root cause process (Root Cause → Pattern → Hypothesis → Implementation) |
 | **test-driven-development** | RED-GREEN-REFACTOR cycle - no production code without failing test |
 | **writing-plans** | Break work into bite-sized tasks (2-5 min each) |
+| **plan-verification** | Verify plan assumptions before execution - prevents "claim done but code doesn't exist" bugs |
 | **using-git-worktrees** | Creates isolated workspace on new branch |
 | **subagent-driven-development** | Fast iteration với two-stage review (spec compliance → code quality) |
 | **executing-plans** | Batch execution với checkpoints |
@@ -70,12 +71,14 @@ Even 1% chance → invoke skill to check
 ## Standard Workflow
 
 ```
-brainstorming → writing-plans → subagent-driven-development → finishing-a-development-branch
+brainstorming → writing-plans → [plan-verification] → subagent-driven-development → finishing-a-development-branch
 ```
+
+> **Note:** `plan-verification` is automatically invoked by `writing-plans` before handoff. It verifies plan assumptions (code existence, file paths, dependencies) are true before execution begins.
 
 ### Alternative Workflow
 ```
-brainstorming → writing-plans → executing-plans → finishing-a-development-branch
+brainstorming → writing-plans → [plan-verification] → executing-plans → finishing-a-development-branch
 ```
 
 ### Debug Flow
@@ -164,11 +167,12 @@ Two-stage review process:
 
 ```
 superpowers/
-├── skills/                      # 14 core skills
+├── skills/                      # 15 core skills
 │   ├── brainstorming/
 │   ├── dispatching-parallel-agents/
 │   ├── executing-plans/
 │   ├── finishing-a-development-branch/
+│   ├── plan-verification/
 │   ├── receiving-code-review/
 │   ├── requesting-code-review/
 │   ├── subagent-driven-development/
