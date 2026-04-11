@@ -1,0 +1,6 @@
+{
+  "architect": "anthropic/claude-3.5-sonnet",
+  "programmer": "deepseek/deepseek-coder",
+  "reviewer": "openai/gpt-4o",
+  "tester": "anthropic/claude-3-haiku"
+}

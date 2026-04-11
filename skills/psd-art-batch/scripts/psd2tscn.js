@@ -93,16 +93,19 @@ function mapNodeType(node) {
   return 'Control'; // fallback
 }
 
-// Bounds in scene JSON are already in game-space coordinates (design.width × design.height).
-// scale_x/scale_y in the JSON describes the PSD→game conversion done by the exporter,
-// not a transform we need to re-apply here.
-function calcOffsets(node) {
-  const b = node.bounds;
+// Bounds in scene JSON are absolute design-space coordinates.
+// Godot 4 Control offsets are RELATIVE to the parent node's top-left corner.
+// parentBounds = { left, top } of the parent in design space.
+// For root-level nodes, parentBounds = { left: 0, top: 0 }.
+function calcOffsets(node, parentBounds) {
+  const b  = node.bounds;
+  const pl = parentBounds.left;
+  const pt = parentBounds.top;
   return {
-    left:   Math.round(b.left   * 100) / 100,
-    top:    Math.round(b.top    * 100) / 100,
-    right:  Math.round(b.right  * 100) / 100,
-    bottom: Math.round(b.bottom * 100) / 100,
+    left:   Math.round((b.left   - pl) * 100) / 100,
+    top:    Math.round((b.top    - pt) * 100) / 100,
+    right:  Math.round((b.right  - pl) * 100) / 100,
+    bottom: Math.round((b.bottom - pt) * 100) / 100,
   };
 }
 
@@ -148,7 +151,9 @@ function generateTscn(json, slug, assetsResPath) {
   }
   scanResources(json.scene_tree);
 
-  function walkNodes(nodes, parentPath) {
+  // parentBounds: { left, top } in design space — children subtract this to get local offsets.
+  // Root-level nodes use { left: 0, top: 0 } (parent is the root Control at origin).
+  function walkNodes(nodes, parentPath, parentBounds) {
     const seenNames = new Set();
     nodes.forEach(n => {
       let nodeName = n.name;
@@ -161,7 +166,7 @@ function generateTscn(json, slug, assetsResPath) {
       seenNames.add(nodeName);
 
       const godotType = mapNodeType(n);
-      const offsets   = calcOffsets(n);
+      const offsets   = calcOffsets(n, parentBounds);
 
       nodeLines.push('');
       nodeLines.push(`[node name="${nodeName}" type="${godotType}" parent="${parentPath}"]`);
@@ -191,7 +196,8 @@ function generateTscn(json, slug, assetsResPath) {
 
       if (n.children && n.children.length) {
         const childPath = parentPath === '.' ? nodeName : parentPath + '/' + nodeName;
-        walkNodes(n.children, childPath);
+        // Pass THIS node's bounds as the parent reference for its children
+        walkNodes(n.children, childPath, { left: n.bounds.left, top: n.bounds.top });
       }
     });
   }
@@ -200,7 +206,8 @@ function generateTscn(json, slug, assetsResPath) {
   nodeLines.push(`[node name="${rootName}" type="Control"]`);
   nodeLines.push(`size = Vector2(${w}, ${h})`);
 
-  walkNodes(json.scene_tree, '.');
+  // Root-level nodes are children of the root Control at (0, 0)
+  walkNodes(json.scene_tree, '.', { left: 0, top: 0 });
 
   const resources = reg.entries();
   const loadSteps = resources.length + 1;

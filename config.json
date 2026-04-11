@@ -1,0 +1,26 @@
+{
+  "model": "openrouter/auto",
+  "models": [
+    "qwen/qwen3-coder:free",
+	"qwen/qwen3-vl-235b-a22b-thinking",
+    "openai/gpt-oss-120b:free",
+	"openrouter/auto",
+	"openrouter/free",
+	"qwen/qwen3-next-80b-a3b-instruct:free",
+	"meta-llama/llama-3.3-70b-instruct:free",
+	"qwen/qwen3-vl-30b-a3b-thinking",
+	"nvidia/nemotron-3-nano-30b-a3b:free",
+	"google/gemma-3-27b-it:free",
+	"openai/gpt-oss-20b:free",
+	"stepfun/step-3.5-flash:free",
+	"arcee-ai/trinity-large-preview:free",
+	"z-ai/glm-4.5-air:free",
+	"arcee-ai/trinity-mini:free",
+	"nvidia/nemotron-nano-12b-v2-vl:free",
+	"nvidia/nemotron-nano-9b-v2:free",
+	"liquid/lfm-2.5-1.2b-thinking:free",
+    "deepseek/deepseek-coder"
+  ],
+  "api_base": "https://openrouter.ai/api/v1",
+  "api_key_env": "OPENAI_API_KEY"
+}

@@ -133,7 +133,25 @@ After completing each chunk of the plan:
 
 After saving the plan:
 
-**"Plan complete and saved to `docs/superpowers/plans/<filename>.md`. Ready to execute?"**
+1. **REQUIRED:** Invoke `plan-verification` skill
+   - Verify plan has "Assumptions to Verify" section
+   - Parse explicit items + auto-scan for additional
+   - Execute verification for all items
+   - Generate verification report
+
+2. **If verification PASSES:**
+   - Display: "Plan verified. Ready to execute?"
+   - Proceed to execution
+
+3. **If verification FAILS:**
+   - Display verification report
+   - Present options: Fix / Override / Abort
+   - Block until resolved
+   - Log resolution in plan document
+   - After Fix or Override: proceed to confirmation message below
+   - After Abort: return to plan editing
+
+**"Plan complete, verified, and saved to `docs/superpowers/plans/<filename>.md`. Ready to execute?"**
 
 **Execution path depends on harness capabilities:**
 

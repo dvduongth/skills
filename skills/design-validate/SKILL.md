@@ -125,6 +125,12 @@ Walk each item sequentially. Mark pass/fail with evidence.
 #### §8 Edge Cases
 - [ ] CV-20: At least 2 edge cases documented with expected behavior
 
+#### §10 Showcase & Test Methods (game feature — BLOCKING)
+- [ ] CV-25: §Showcase & Test Methods section tồn tại trong design doc (vắng mặt = must-fix)
+- [ ] CV-26: Bảng "Showcase Scenarios" có ≥1 dòng dữ liệu thực per FR (không chỉ header/placeholder)
+- [ ] CV-27: Bảng "Acceptance Criteria per FR" có ≥1 dòng dữ liệu thực per FR với Pass/Fail condition rõ ràng
+- [ ] CV-28: Mọi FR trong §Mechanics / §Cơ chế cốt lõi đều có ≥1 showcase scenario và ≥1 AC (cross-check FR IDs)
+
 #### Diagrams
 - [ ] CV-23: Any flow with 4+ steps has a Mermaid diagram link inline below it (or explicit note "diagram not required — N steps")
 
