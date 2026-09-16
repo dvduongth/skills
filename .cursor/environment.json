@@ -1,0 +1,17 @@
+{
+  "name": "dvduongth/skills",
+  "install": "sudo apt-get update && sudo apt-get install -y --no-install-recommends python-is-python3",
+  "terminals": [
+    {
+      "name": "dashboard",
+      "command": "python -m http.server 8282",
+      "description": "Static dashboard that serves the skills repository (README, skills/, specs/, templates/, plans/) for browsing at http://localhost:8282."
+    }
+  ],
+  "ports": [
+    {
+      "name": "dashboard",
+      "port": 8282
+    }
+  ]
+}
